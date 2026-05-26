@@ -84,16 +84,16 @@ const App: React.FC = () => {
           activeDifficulty={activeDifficulty}
           onDifficultyChange={setActiveDifficulty}
         />
-      </div>
 
-      <div className="question-count">
-        <span>共 <strong>{filteredQuestions.length}</strong> 道题目</span>
-        {activeCategory !== '全部' && (
-          <span className="active-filter-tag">
-            {activeCategory}
-            <button onClick={() => setActiveCategory('全部')}>✕</button>
-          </span>
-        )}
+        <div className="question-count">
+          <span>共 <strong>{filteredQuestions.length}</strong> 道题目</span>
+          {activeCategory !== '全部' && (
+            <span className="active-filter-tag">
+              {activeCategory}
+              <button onClick={() => setActiveCategory('全部')}>✕</button>
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="question-list">
