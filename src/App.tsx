@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { questions, categories, Question } from './data/questions';
 import CategoryFilter from './components/CategoryFilter';
 import DifficultyFilter from './components/DifficultyFilter';
@@ -9,6 +9,19 @@ const App: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('全部');
   const [activeDifficulty, setActiveDifficulty] = useState('all');
   const [searchText, setSearchText] = useState('');
+  const [stickyTop, setStickyTop] = useState(0);
+  const stickyFilterRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const updateHeight = () => {
+      if (stickyFilterRef.current) {
+        setStickyTop(stickyFilterRef.current.offsetHeight);
+      }
+    };
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+    return () => window.removeEventListener('resize', updateHeight);
+  }, []);
 
   const filteredQuestions = useMemo(() => {
     return questions.filter((q: Question) => {
@@ -54,7 +67,7 @@ const App: React.FC = () => {
       </div>
 
       {/* Sticky filter area */}
-      <div className="sticky-filter">
+      <div className="sticky-filter" ref={stickyFilterRef}>
         <div className="search-bar">
           <span className="search-icon">🔍</span>
           <input
@@ -98,7 +111,7 @@ const App: React.FC = () => {
 
       <div className="question-list">
         {filteredQuestions.map((q) => (
-          <QuestionCard key={q.id} question={q} />
+          <QuestionCard key={q.id} question={q} stickyTop={stickyTop} />
         ))}
         {filteredQuestions.length === 0 && (
           <div className="empty-state">
