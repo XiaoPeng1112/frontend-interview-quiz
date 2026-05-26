@@ -101,14 +101,13 @@ body {
   backdrop-filter: blur(20px) saturate(1.2);
   -webkit-backdrop-filter: blur(20px) saturate(1.2);
   margin: 0 -16px;
-  padding: 12px 16px 8px;
+  padding: 10px 16px 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  transition: box-shadow 0.3s ease;
 }
 
 /* Search */
 .search-bar {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   position: relative;
 }
 

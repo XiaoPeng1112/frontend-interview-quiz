@@ -1,19 +1,22 @@
-html, body {
+html {
   margin: 0;
   padding: 0;
   width: 100%;
   min-height: 100vh;
   -webkit-tap-highlight-color: transparent;
-  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
 }
 
 #root {
   min-height: 100vh;
-}
-
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 /* Selection color */
