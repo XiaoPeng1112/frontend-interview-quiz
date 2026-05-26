@@ -27,7 +27,7 @@ const App: React.FC = () => {
   const stats = useMemo(() => {
     const total = questions.length;
     const hard = questions.filter(q => q.difficulty === 'hard').length;
-    const categoryCount = categories.length - 1; // exclude '全部'
+    const categoryCount = categories.length - 1;
     return { total, hard, categoryCount };
   }, []);
 
@@ -53,30 +53,47 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      <div className="search-bar">
-        <span className="search-icon">🔍</span>
-        <input
-          type="text"
-          placeholder="搜索题目关键词..."
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          className="search-input"
+      {/* Sticky filter area */}
+      <div className="sticky-filter">
+        <div className="search-bar">
+          <span className="search-icon">🔍</span>
+          <input
+            type="text"
+            placeholder="搜索题目关键词..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            className="search-input"
+          />
+          {searchText && (
+            <button
+              className="search-clear"
+              onClick={() => setSearchText('')}
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
+        <CategoryFilter
+          categories={categories}
+          activeCategory={activeCategory}
+          onCategoryChange={setActiveCategory}
+        />
+
+        <DifficultyFilter
+          activeDifficulty={activeDifficulty}
+          onDifficultyChange={setActiveDifficulty}
         />
       </div>
 
-      <CategoryFilter
-        categories={categories}
-        activeCategory={activeCategory}
-        onCategoryChange={setActiveCategory}
-      />
-
-      <DifficultyFilter
-        activeDifficulty={activeDifficulty}
-        onDifficultyChange={setActiveDifficulty}
-      />
-
       <div className="question-count">
         <span>共 <strong>{filteredQuestions.length}</strong> 道题目</span>
+        {activeCategory !== '全部' && (
+          <span className="active-filter-tag">
+            {activeCategory}
+            <button onClick={() => setActiveCategory('全部')}>✕</button>
+          </span>
+        )}
       </div>
 
       <div className="question-list">

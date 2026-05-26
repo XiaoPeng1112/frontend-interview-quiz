@@ -14,7 +14,7 @@ const CategoryFilter: React.FC<Props> = ({
 }) => {
   return (
     <div className="category-filter">
-      <div className="category-scroll">
+      <div className="category-grid">
         {categories.map((cat) => (
           <button
             key={cat}

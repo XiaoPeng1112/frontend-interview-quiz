@@ -17,12 +17,14 @@
   --text-primary: #f1f5f9;
   --text-secondary: rgba(241, 245, 249, 0.7);
   --text-muted: rgba(241, 245, 249, 0.45);
+  --sticky-bg: rgba(15, 12, 41, 0.88);
 }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC',
     'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   background: linear-gradient(160deg, var(--bg-start) 0%, var(--bg-mid) 50%, var(--bg-end) 100%);
+  background-attachment: fixed;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   color: var(--text-primary);
@@ -90,9 +92,23 @@ body {
   display: block;
 }
 
+/* Sticky Filter Area */
+.sticky-filter {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--sticky-bg);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  margin: 0 -16px;
+  padding: 12px 16px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  transition: box-shadow 0.3s ease;
+}
+
 /* Search */
 .search-bar {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   position: relative;
 }
 
@@ -108,13 +124,11 @@ body {
 
 .search-input {
   width: 100%;
-  padding: 13px 16px 13px 38px;
+  padding: 12px 40px 12px 38px;
   border: 1px solid var(--card-border);
   border-radius: 12px;
   font-size: 14px;
-  background: var(--card-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--text-primary);
   outline: none;
   transition: all 0.3s ease;
@@ -123,26 +137,76 @@ body {
 .search-input:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .search-input::placeholder {
   color: var(--text-muted);
 }
 
+.search-clear {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.search-clear:active {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-50%) scale(0.9);
+}
+
 /* Question Count */
 .question-count {
   color: var(--text-secondary);
   font-size: 13px;
-  margin-bottom: 14px;
+  margin: 14px 0;
   padding-left: 2px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .question-count strong {
   color: var(--primary-light);
   font-weight: 700;
+}
+
+.active-filter-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: rgba(99, 102, 241, 0.12);
+  border-radius: 6px;
+  font-size: 11px;
+  color: var(--primary-light);
+}
+
+.active-filter-tag button {
+  border: none;
+  background: none;
+  color: var(--primary-light);
+  font-size: 10px;
+  cursor: pointer;
+  opacity: 0.7;
+  padding: 0 2px;
+}
+
+.active-filter-tag button:active {
+  opacity: 1;
 }
 
 /* Question List */
@@ -192,6 +256,12 @@ body {
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .app {
     padding-bottom: calc(32px + env(safe-area-inset-bottom));
+  }
+}
+
+@supports (padding-top: env(safe-area-inset-top)) {
+  .sticky-filter {
+    padding-top: calc(12px + env(safe-area-inset-top));
   }
 }
 
