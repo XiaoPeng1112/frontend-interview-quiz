@@ -7,9 +7,9 @@ interface Props {
 }
 
 const difficultyMap = {
-  easy: { label: '简单', className: 'difficulty-easy' },
-  medium: { label: '中等', className: 'difficulty-medium' },
-  hard: { label: '困难', className: 'difficulty-hard' },
+  easy: { label: '基础', className: 'difficulty-easy' },
+  medium: { label: '进阶', className: 'difficulty-medium' },
+  hard: { label: '深度', className: 'difficulty-hard' },
 };
 
 const QuestionCard: React.FC<Props> = ({ question }) => {
@@ -17,7 +17,7 @@ const QuestionCard: React.FC<Props> = ({ question }) => {
   const difficulty = difficultyMap[question.difficulty];
 
   return (
-    <div className="question-card">
+    <div className={`question-card ${showAnswer ? 'expanded' : ''}`}>
       <div className="question-header">
         <span className={`difficulty-tag ${difficulty.className}`}>
           {difficulty.label}
@@ -29,8 +29,8 @@ const QuestionCard: React.FC<Props> = ({ question }) => {
         className={`toggle-answer-btn ${showAnswer ? 'active' : ''}`}
         onClick={() => setShowAnswer(!showAnswer)}
       >
-        {showAnswer ? '收起答案' : '查看答案'}
-        <span className="arrow">{showAnswer ? '▲' : '▼'}</span>
+        {showAnswer ? '收起答案' : '展开答案'}
+        <span className="arrow">▼</span>
       </button>
       {showAnswer && (
         <div className="answer-content">

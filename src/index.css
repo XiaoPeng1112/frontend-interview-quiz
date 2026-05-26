@@ -4,8 +4,20 @@ html, body {
   width: 100%;
   min-height: 100vh;
   -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
 }
 
 #root {
   min-height: 100vh;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Selection color */
+::selection {
+  background: rgba(99, 102, 241, 0.3);
+  color: #fff;
 }

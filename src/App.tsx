@@ -24,17 +24,40 @@ const App: React.FC = () => {
     });
   }, [activeCategory, activeDifficulty, searchText]);
 
+  const stats = useMemo(() => {
+    const total = questions.length;
+    const hard = questions.filter(q => q.difficulty === 'hard').length;
+    const categoryCount = categories.length - 1; // exclude '全部'
+    return { total, hard, categoryCount };
+  }, []);
+
   return (
     <div className="app">
       <header className="app-header">
-        <h1>前端面试题库</h1>
-        <p className="subtitle">助力前端开发者高效备战面试</p>
+        <h1>Frontend Interview</h1>
+        <p className="subtitle">RN 架构 · AI Native · 系统设计</p>
       </header>
 
+      <div className="stats-bar">
+        <div className="stat-item">
+          <span className="stat-number">{stats.total}</span>
+          <span className="stat-label">题目总数</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-number">{stats.categoryCount}</span>
+          <span className="stat-label">知识领域</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-number">{stats.hard}</span>
+          <span className="stat-label">高难度题</span>
+        </div>
+      </div>
+
       <div className="search-bar">
+        <span className="search-icon">🔍</span>
         <input
           type="text"
-          placeholder="搜索题目..."
+          placeholder="搜索题目关键词..."
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           className="search-input"
@@ -53,7 +76,7 @@ const App: React.FC = () => {
       />
 
       <div className="question-count">
-        共 <strong>{filteredQuestions.length}</strong> 道题目
+        <span>共 <strong>{filteredQuestions.length}</strong> 道题目</span>
       </div>
 
       <div className="question-list">
@@ -62,6 +85,7 @@ const App: React.FC = () => {
         ))}
         {filteredQuestions.length === 0 && (
           <div className="empty-state">
+            <div className="empty-icon">📭</div>
             <p>没有找到匹配的题目</p>
             <p className="empty-hint">试试调整筛选条件或搜索关键词</p>
           </div>
@@ -69,7 +93,8 @@ const App: React.FC = () => {
       </div>
 
       <footer className="app-footer">
-        <p>持续更新中 · 祝你面试顺利 🎉</p>
+        <p className="footer-line">持续更新 · 助力面试</p>
+        <p>Built for Senior RN Developer</p>
       </footer>
     </div>
   );

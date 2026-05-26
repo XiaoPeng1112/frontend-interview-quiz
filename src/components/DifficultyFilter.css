@@ -7,13 +7,14 @@
 .diff-btn {
   flex: 1;
   padding: 8px 4px;
-  border: 1.5px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
   font-size: 12px;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.25s ease;
+  letter-spacing: 0.3px;
 }
 
 .diff-btn:active {
@@ -21,9 +22,8 @@
 }
 
 .diff-btn.active {
-  background: rgba(255, 255, 255, 0.95);
-  color: #667eea;
-  border-color: transparent;
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--primary-light);
+  border-color: rgba(99, 102, 241, 0.3);
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
