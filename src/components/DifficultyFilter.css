@@ -1,0 +1,29 @@
+.difficulty-filter {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.diff-btn {
+  flex: 1;
+  padding: 8px 4px;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  font-size: 12px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.diff-btn:active {
+  transform: scale(0.95);
+}
+
+.diff-btn.active {
+  background: rgba(255, 255, 255, 0.95);
+  color: #667eea;
+  border-color: transparent;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
