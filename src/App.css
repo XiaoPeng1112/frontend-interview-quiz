@@ -17,7 +17,6 @@
   --text-primary: #f1f5f9;
   --text-secondary: rgba(241, 245, 249, 0.7);
   --text-muted: rgba(241, 245, 249, 0.45);
-  --sticky-bg: rgba(15, 12, 41, 0.88);
 }
 
 body {
@@ -97,12 +96,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: var(--sticky-bg);
-  backdrop-filter: blur(20px) saturate(1.2);
-  -webkit-backdrop-filter: blur(20px) saturate(1.2);
-  margin: 0 -16px;
-  padding: 10px 16px 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 10px 0 8px;
 }
 
 /* Search */
