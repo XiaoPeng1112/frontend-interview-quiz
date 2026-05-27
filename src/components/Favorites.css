@@ -1,17 +1,28 @@
 .favorites-page {
-  padding-bottom: 20px;
+  padding-bottom: 80px;
+}
+
+/* 吸顶区域 */
+.favorites-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg-primary);
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--card-border);
+  margin-bottom: 16px;
 }
 
 .favorites-header {
   text-align: center;
-  padding: 32px 0 20px;
+  padding: 24px 0 12px;
 }
 
 .favorites-header h2 {
   font-size: 20px;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .favorites-desc {
@@ -24,7 +35,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 20px;
+  padding: 0 4px;
 }
 
 .fav-filter {
@@ -111,6 +122,21 @@
 
 .mark-btn:active {
   transform: scale(0.9);
+}
+
+/* Loader */
+.favorites-loader {
+  text-align: center;
+  padding: 24px 0 16px;
+}
+
+.loader-text {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.loader-text.end {
+  opacity: 0.6;
 }
 
 /* Empty */
