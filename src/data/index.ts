@@ -15,12 +15,14 @@ import { architectureQuestions } from './architecture-questions';
 import { resumeQuestions } from './resume-questions';
 import { resumeRound1Questions } from './resume-round1-questions';
 import { resumeRound2Questions } from './resume-round2-questions';
+import { resumeSkillsQuestions } from './resume-skills-questions';
 
 export type { Question };
 
 export const categories = [
   '全部',
   '简历针对',
+  '技能考察',
   '一面追问',
   '二面深度',
   'React Native',
@@ -55,4 +57,5 @@ export const questions: Question[] = [
   ...resumeQuestions,
   ...resumeRound1Questions,
   ...resumeRound2Questions,
+  ...resumeSkillsQuestions,
 ];
