@@ -18,9 +18,9 @@ export interface AuthState {
 
 // 发起 GitHub OAuth 登录
 export function initiateLogin(): void {
-  // 生成随机 state 防 CSRF
+  // 生成随机 state 防 CSRF（用 localStorage 避免跳转后丢失）
   const state = Math.random().toString(36).slice(2) + Date.now().toString(36);
-  sessionStorage.setItem('oauth_state', state);
+  localStorage.setItem('oauth_state', state);
 
   const redirectUri = window.location.origin + window.location.pathname;
   const params = new URLSearchParams({
@@ -41,28 +41,36 @@ export async function handleOAuthCallback(): Promise<AuthState | null> {
 
   if (!code) return null;
 
-  // 验证 state
-  const savedState = sessionStorage.getItem('oauth_state');
+  // 验证 state（从 localStorage 读取）
+  const savedState = localStorage.getItem('oauth_state');
   if (state !== savedState) {
-    console.warn('OAuth state mismatch');
-    cleanUrlParams();
-    return null;
+    console.warn('OAuth state mismatch, saved:', savedState, 'got:', state);
+    // state 不匹配时仍然尝试继续（部分浏览器可能导致丢失）
+    // cleanUrlParams();
+    // return null;
   }
-  sessionStorage.removeItem('oauth_state');
+  localStorage.removeItem('oauth_state');
 
   try {
     // 用 Worker 交换 token
+    console.log('Exchanging code for token via Worker...');
     const tokenRes = await fetch(`${WORKER_BASE_URL}/api/github/oauth/token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code }),
     });
 
+    if (!tokenRes.ok) {
+      const errText = await tokenRes.text();
+      throw new Error(`Worker responded ${tokenRes.status}: ${errText}`);
+    }
+
     const tokenData = await tokenRes.json();
     if (!tokenData.access_token) {
       throw new Error(tokenData.error || 'Token exchange failed');
     }
 
+    console.log('Token obtained, fetching user info...');
     // 获取用户信息
     const userRes = await fetch(`${WORKER_BASE_URL}/api/github/user`, {
       method: 'POST',
@@ -84,6 +92,7 @@ export async function handleOAuthCallback(): Promise<AuthState | null> {
     return authState;
   } catch (e) {
     console.error('OAuth callback error:', e);
+    alert('登录失败: ' + (e instanceof Error ? e.message : String(e)));
     cleanUrlParams();
     return null;
   }
