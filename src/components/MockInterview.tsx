@@ -13,6 +13,7 @@ import {
 } from '../services/speechService';
 import QuestionCard from './QuestionCard';
 import InterviewHistory from './InterviewHistory';
+import InterviewDetail from './InterviewDetail';
 import './MockInterview.css';
 
 type SelfScore = 0 | 1 | 2 | 3; // 0=未评 1=不会 2=部分 3=掌握
@@ -24,6 +25,7 @@ interface Props {
 }
 
 const MockInterview: React.FC<Props> = ({ interviewHistory, onSaveRecord, onClearHistory }) => {
+  const [viewingRecord, setViewingRecord] = useState<InterviewRecord | null>(null);
   const [mode, setMode] = useState<'idle' | 'interviewing' | 'finished'>('idle');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [drawnQuestions, setDrawnQuestions] = useState<Question[]>([]);
@@ -33,6 +35,7 @@ const MockInterview: React.FC<Props> = ({ interviewHistory, onSaveRecord, onClea
   const [elapsed, setElapsed] = useState(0);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [questionTimes, setQuestionTimes] = useState<number[]>([]);
+  const [userAnswers, setUserAnswers] = useState<string[]>([]);
   const [slideDir, setSlideDir] = useState<'left' | 'right' | ''>('');
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const questionStartRef = useRef(0);
@@ -92,6 +95,7 @@ const MockInterview: React.FC<Props> = ({ interviewHistory, onSaveRecord, onClea
     setDrawnQuestions(drawn);
     setScores(new Array(count).fill(0));
     setQuestionTimes(new Array(count).fill(0));
+    setUserAnswers(new Array(count).fill(''));
     setCurrentIndex(0);
     setElapsed(0);
     setSlideDir('');
@@ -141,6 +145,7 @@ const MockInterview: React.FC<Props> = ({ interviewHistory, onSaveRecord, onClea
         elapsed,
         scores: scores as number[],
         questionIds: drawnQuestions.map(q => q.id),
+        userAnswers: userAnswers,
         masteredCount: scores.filter(s => s === 3).length,
         partialCount: scores.filter(s => s === 2).length,
         failedCount: scores.filter(s => s === 1).length,
@@ -178,6 +183,7 @@ const MockInterview: React.FC<Props> = ({ interviewHistory, onSaveRecord, onClea
     setCurrentIndex(0);
     setScores([]);
     setQuestionTimes([]);
+    setUserAnswers([]);
     setElapsed(0);
     setSpokenText('');
     setInterimText('');
@@ -220,6 +226,25 @@ const MockInterview: React.FC<Props> = ({ interviewHistory, onSaveRecord, onClea
       }
     }
   }, [isTTSPlaying, drawnQuestions, currentIndex]);
+
+  // 进入详情时滚动到顶部
+  useEffect(() => {
+    if (viewingRecord) {
+      window.scrollTo(0, 0);
+    }
+  }, [viewingRecord]);
+
+  // 查看面试记录详情（全屏）
+  if (viewingRecord) {
+    return (
+      <div className="mock-interview">
+        <InterviewDetail
+          record={viewingRecord}
+          onBack={() => setViewingRecord(null)}
+        />
+      </div>
+    );
+  }
 
   // idle 模式：设置页
   if (mode === 'idle') {
@@ -315,8 +340,16 @@ const MockInterview: React.FC<Props> = ({ interviewHistory, onSaveRecord, onClea
           开始面试（{Math.min(questionCount, poolSize)} 题）
         </button>
 
-        {/* 面试历史 */}
-        <InterviewHistory records={interviewHistory} onClear={onClearHistory} />
+        {/* 面试记录 */}
+        {interviewHistory.length > 0 && (
+          <div className="mock-history-section">
+            <InterviewHistory
+              records={interviewHistory}
+              onClear={onClearHistory}
+              onSelectRecord={setViewingRecord}
+            />
+          </div>
+        )}
       </div>
     );
   }
@@ -493,13 +526,46 @@ const MockInterview: React.FC<Props> = ({ interviewHistory, onSaveRecord, onClea
       {/* 语音识别结果 */}
       {voiceEnabled && hasSTT && (spokenText || interimText) && (
         <div className="voice-result">
-          <div className="voice-result-label">我的回答：</div>
+          <div className="voice-result-label">语音识别：</div>
           <div className="voice-result-text">
             {spokenText}
             {interimText && <span className="interim">{interimText}</span>}
           </div>
         </div>
       )}
+
+      {/* 我的回答输入区 */}
+      <div className="mock-answer-area">
+        <label className="mock-answer-label">✏️ 我的回答</label>
+        <textarea
+          className="mock-answer-input"
+          placeholder="输入你的回答（可选），也可以使用语音输入后在这里编辑..."
+          value={userAnswers[currentIndex] || ''}
+          onChange={(e) => {
+            const val = e.target.value;
+            setUserAnswers(prev => {
+              const next = [...prev];
+              next[currentIndex] = val;
+              return next;
+            });
+          }}
+          rows={4}
+        />
+        {voiceEnabled && spokenText && !userAnswers[currentIndex] && (
+          <button
+            className="mock-fill-voice-btn"
+            onClick={() => {
+              setUserAnswers(prev => {
+                const next = [...prev];
+                next[currentIndex] = spokenText;
+                return next;
+              });
+            }}
+          >
+            填入语音内容
+          </button>
+        )}
+      </div>
 
       {/* 自评打分 */}
       <div className="mock-scoring">

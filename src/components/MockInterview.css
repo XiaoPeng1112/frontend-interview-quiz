@@ -649,3 +649,71 @@
   color: var(--text-muted);
   font-style: italic;
 }
+
+/* 面试记录区域 */
+.mock-history-section {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* 我的回答输入区 */
+.mock-answer-area {
+  margin: 16px 0;
+  padding: 16px;
+  background: rgba(99, 102, 241, 0.04);
+  border-radius: 12px;
+  border: 1px solid rgba(99, 102, 241, 0.1);
+}
+
+.mock-answer-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+
+.mock-answer-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.8);
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color 0.2s;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.mock-answer-input:focus {
+  outline: none;
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.08);
+}
+
+.mock-answer-input::placeholder {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.mock-fill-voice-btn {
+  margin-top: 8px;
+  padding: 6px 14px;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 6px;
+  font-size: 12px;
+  color: #6366f1;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mock-fill-voice-btn:active {
+  background: rgba(99, 102, 241, 0.08);
+  transform: scale(0.96);
+}

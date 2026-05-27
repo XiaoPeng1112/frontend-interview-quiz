@@ -6,9 +6,10 @@ import './InterviewHistory.css';
 interface Props {
   records: InterviewRecord[];
   onClear: () => void;
+  onSelectRecord?: (record: InterviewRecord) => void;
 }
 
-const InterviewHistory: React.FC<Props> = ({ records, onClear }) => {
+const InterviewHistory: React.FC<Props> = ({ records, onClear, onSelectRecord }) => {
   const [selectedRecord, setSelectedRecord] = useState<InterviewRecord | null>(null);
 
   const formatTime = (s: number) => {
@@ -17,8 +18,18 @@ const InterviewHistory: React.FC<Props> = ({ records, onClear }) => {
     return `${min}:${sec.toString().padStart(2, '0')}`;
   };
 
-  // 详情页
-  if (selectedRecord) {
+  const handleSelect = (record: InterviewRecord) => {
+    if (onSelectRecord) {
+      // 父组件接管导航（全屏模式）
+      onSelectRecord(record);
+    } else {
+      // 自行管理内嵌详情
+      setSelectedRecord(record);
+    }
+  };
+
+  // 内嵌详情页（无 onSelectRecord 时 fallback）
+  if (selectedRecord && !onSelectRecord) {
     return (
       <InterviewDetail
         record={selectedRecord}
@@ -55,7 +66,7 @@ const InterviewHistory: React.FC<Props> = ({ records, onClear }) => {
             <div
               key={record.id}
               className="history-card clickable"
-              onClick={() => setSelectedRecord(record)}
+              onClick={() => handleSelect(record)}
             >
               <div className="history-card-top">
                 <span className="history-date">

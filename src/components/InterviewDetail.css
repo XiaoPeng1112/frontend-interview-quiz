@@ -397,6 +397,24 @@
   color: #4ade80;
 }
 
+.answer-label.user-answer {
+  color: #6366f1;
+}
+
+.answer-content.user-answer {
+  background: rgba(99, 102, 241, 0.05);
+  border-color: rgba(99, 102, 241, 0.12);
+  margin-bottom: 14px;
+}
+
+.answer-empty-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-bottom: 12px;
+  padding: 6px 0;
+}
+
 .answer-content {
   font-size: 12px;
   color: var(--text-secondary);

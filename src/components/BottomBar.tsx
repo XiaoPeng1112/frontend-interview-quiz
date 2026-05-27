@@ -1,7 +1,7 @@
 import React from 'react';
 import './BottomBar.css';
 
-export type TabKey = 'library' | 'mock' | 'favorites';
+export type TabKey = 'library' | 'mock' | 'review' | 'favorites';
 
 interface Props {
   activeTab: TabKey;
@@ -11,6 +11,7 @@ interface Props {
 const tabs: { key: TabKey; label: string; icon: string }[] = [
   { key: 'library', label: '题库', icon: '📚' },
   { key: 'mock', label: '模拟面试', icon: '🎯' },
+  { key: 'review', label: '复盘', icon: '📊' },
   { key: 'favorites', label: '收藏', icon: '⭐' },
 ];
 

@@ -5,6 +5,10 @@ compatibility_date = "2024-01-01"
 [vars]
 ALLOWED_ORIGIN = "https://xiaopeng1112.github.io"
 
+# Workers AI 绑定（免费，每天 10,000 次调用）
+[ai]
+binding = "AI"
+
 # 以下两个值需在 Cloudflare Dashboard → Workers → Settings → Variables 中设置为加密变量
 # GITHUB_CLIENT_ID = "你的 Client ID"
 # GITHUB_CLIENT_SECRET = "你的 Client Secret"

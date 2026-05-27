@@ -36,6 +36,7 @@ const InterviewDetail: React.FC<Props> = ({ record, onBack }) => {
         questionId: qId,
         question: q,
         score: record.scores[idx],
+        userAnswer: record.userAnswers?.[idx] || '',
       };
     });
   }, [record]);
@@ -231,7 +232,7 @@ const InterviewDetail: React.FC<Props> = ({ record, onBack }) => {
 
         {/* 题目列表 */}
         <div className="detail-questions">
-          {sortedDetails.map(({ index, questionId, question, score }) => {
+          {sortedDetails.map(({ index, questionId, question, score, userAnswer }) => {
             const scoreInfo = getScoreInfo(score);
             const isExpanded = expandedIds.has(questionId);
 
@@ -253,15 +254,30 @@ const InterviewDetail: React.FC<Props> = ({ record, onBack }) => {
                   <span className="detail-q-category">{question.category} · {question.difficulty}</span>
                 )}
 
-                {/* 展开参考答案 */}
-                {isExpanded && question && (
+                {/* 展开详情 */}
+                {isExpanded && (
                   <div className="detail-q-answer">
-                    <div className="answer-label">📖 参考答案</div>
-                    <div className="answer-content">{question.answer}</div>
-                    {question.oralAnswer && (
+                    {/* 我的回答 */}
+                    {userAnswer ? (
                       <>
-                        <div className="answer-label oral">🗣️ 口语化回答</div>
-                        <div className="answer-content oral">{question.oralAnswer}</div>
+                        <div className="answer-label user-answer">✏️ 我的回答</div>
+                        <div className="answer-content user-answer">{userAnswer}</div>
+                      </>
+                    ) : (
+                      <div className="answer-empty-hint">未填写回答</div>
+                    )}
+
+                    {/* 参考答案 */}
+                    {question && (
+                      <>
+                        <div className="answer-label">📖 参考答案</div>
+                        <div className="answer-content">{question.answer}</div>
+                        {question.oralAnswer && (
+                          <>
+                            <div className="answer-label oral">🗣️ 口语化回答</div>
+                            <div className="answer-content oral">{question.oralAnswer}</div>
+                          </>
+                        )}
                       </>
                     )}
                   </div>

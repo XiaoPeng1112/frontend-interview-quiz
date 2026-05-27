@@ -5,6 +5,7 @@ import DifficultyFilter from './components/DifficultyFilter';
 import QuestionCard from './components/QuestionCard';
 import BottomBar, { TabKey } from './components/BottomBar';
 import MockInterview from './components/MockInterview';
+import ReviewAnalysis from './components/ReviewAnalysis';
 import Favorites from './components/Favorites';
 import SyncPanel from './components/SyncPanel';
 import {
@@ -370,24 +371,34 @@ const App: React.FC = () => {
     </>
   );
 
+  // Tab 切换时滚动到顶部
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [activeTab]);
+
   return (
     <div className="app">
-      {activeTab === 'library' && renderLibrary()}
-      {activeTab === 'mock' && (
+      <div style={{ display: activeTab === 'library' ? 'block' : 'none' }}>
+        {renderLibrary()}
+      </div>
+      <div style={{ display: activeTab === 'mock' ? 'block' : 'none' }}>
         <MockInterview
           interviewHistory={interviewHistory}
           onSaveRecord={handleSaveRecord}
           onClearHistory={handleClearHistory}
         />
-      )}
-      {activeTab === 'favorites' && (
+      </div>
+      <div style={{ display: activeTab === 'review' ? 'block' : 'none' }}>
+        <ReviewAnalysis />
+      </div>
+      <div style={{ display: activeTab === 'favorites' ? 'block' : 'none' }}>
         <Favorites
           favorites={favorites}
           marks={marks}
           onToggleFavorite={handleToggleFavorite}
           onSetMark={handleSetMark}
         />
-      )}
+      </div>
       <BottomBar activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   );

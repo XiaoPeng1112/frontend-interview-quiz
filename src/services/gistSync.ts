@@ -20,6 +20,7 @@ export interface InterviewRecord {
   elapsed: number; // seconds
   scores: number[]; // 0=未评 1=不会 2=部分 3=掌握
   questionIds: number[];
+  userAnswers?: string[]; // 用户输入的答案
   masteredCount: number;
   partialCount: number;
   failedCount: number;
