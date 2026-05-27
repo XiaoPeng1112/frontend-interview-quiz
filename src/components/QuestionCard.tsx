@@ -20,7 +20,6 @@ const QuestionCard: React.FC<Props> = ({ question, stickyTop = 0 }) => {
 
   const handleCollapse = useCallback(() => {
     setShowAnswer(false);
-    // Scroll the card back into comfortable view after collapsing
     setTimeout(() => {
       if (cardRef.current) {
         const rect = cardRef.current.getBoundingClientRect();
@@ -42,28 +41,20 @@ const QuestionCard: React.FC<Props> = ({ question, stickyTop = 0 }) => {
             {difficulty.label}
           </span>
           <span className="category-tag">{question.category}</span>
+          {showAnswer && (
+            <button className="collapse-btn" onClick={handleCollapse}>
+              收起 ▲
+            </button>
+          )}
         </div>
-        <h3 className="question-title">{question.question}</h3>
-        {showAnswer && (
-          <button
-            className="toggle-answer-btn active"
-            onClick={handleCollapse}
-          >
-            收起答案
-            <span className="arrow">▼</span>
-          </button>
-        )}
-      </div>
-
-      {!showAnswer && (
-        <button
-          className="toggle-answer-btn"
-          onClick={() => setShowAnswer(true)}
+        <h3
+          className="question-title"
+          onClick={() => !showAnswer && setShowAnswer(true)}
         >
-          展开答案
-          <span className="arrow">▼</span>
-        </button>
-      )}
+          <span className="question-title-text">{question.question}</span>
+          {!showAnswer && <span className="expand-hint">查看 ▾</span>}
+        </h3>
+      </div>
 
       {showAnswer && (
         <div className="answer-content">
