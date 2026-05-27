@@ -8,14 +8,24 @@ import MockInterview from './components/MockInterview';
 import Favorites from './components/Favorites';
 import SyncPanel from './components/SyncPanel';
 import {
-  GistConfig,
   SyncData,
   InterviewRecord,
-  loadGistConfig,
+  loadGistId,
+  saveGistId,
+  clearGistId,
+  findExistingGist,
+  createGist,
   readGist,
   updateGist,
   mergeData,
 } from './services/gistSync';
+import {
+  AuthState,
+  loadAuth,
+  logout as logoutAuth,
+  handleOAuthCallback,
+  hasOAuthCallback,
+} from './services/oauthService';
 import './App.css';
 
 type MarkType = 'favorite' | 'mastered' | 'weak';
@@ -62,10 +72,10 @@ const App: React.FC = () => {
   const [marks, setMarks] = useState<Record<number, MarkType>>(loadMarks);
   const [interviewHistory, setInterviewHistory] = useState<InterviewRecord[]>(loadHistory);
 
-  // 同步状态
+  // Auth 状态
+  const [auth, setAuth] = useState<AuthState | null>(loadAuth);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
-  const [gistConfig, setGistConfig] = useState<GistConfig | null>(loadGistConfig);
 
   // 持久化到 localStorage
   useEffect(() => {
@@ -80,7 +90,18 @@ const App: React.FC = () => {
     localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(interviewHistory));
   }, [interviewHistory]);
 
-  // 构建当前同步数据快照
+  // OAuth 回调处理
+  useEffect(() => {
+    if (hasOAuthCallback()) {
+      handleOAuthCallback().then(authState => {
+        if (authState) {
+          setAuth(authState);
+        }
+      });
+    }
+  }, []);
+
+  // 构建当前同步数据
   const buildSyncData = useCallback((): SyncData => ({
     favorites: Array.from(favorites),
     marks: Object.fromEntries(
@@ -105,23 +126,42 @@ const App: React.FC = () => {
 
   // 同步操作
   const handleSync = useCallback(async () => {
-    if (!gistConfig) return;
+    if (!auth) return;
 
     setSyncStatus('syncing');
     try {
-      const remoteData = await readGist(gistConfig.token, gistConfig.gistId);
+      // 获取或创建 Gist
+      let gistId = loadGistId();
+
+      if (!gistId) {
+        // 先查找已有的 Gist
+        gistId = await findExistingGist(auth.token);
+        if (gistId) {
+          saveGistId(gistId);
+        }
+      }
+
       const localData = buildSyncData();
 
-      if (remoteData) {
-        // 合并
-        const merged = mergeData(localData, remoteData);
-        applySyncData(merged);
-        await updateGist(gistConfig.token, gistConfig.gistId, merged);
-        setLastSyncTime(merged.lastSyncAt);
-      } else {
-        // 远端为空，直接上传本地
-        await updateGist(gistConfig.token, gistConfig.gistId, localData);
+      if (!gistId) {
+        // 首次使用，创建新 Gist
+        gistId = await createGist(auth.token, localData);
+        saveGistId(gistId);
         setLastSyncTime(localData.lastSyncAt);
+      } else {
+        // 已有 Gist，读取并合并
+        const remoteData = await readGist(auth.token, gistId);
+
+        if (remoteData) {
+          const merged = mergeData(localData, remoteData);
+          applySyncData(merged);
+          await updateGist(auth.token, gistId, merged);
+          setLastSyncTime(merged.lastSyncAt);
+        } else {
+          // 远端文件不存在，上传本地
+          await updateGist(auth.token, gistId, localData);
+          setLastSyncTime(localData.lastSyncAt);
+        }
       }
 
       setSyncStatus('success');
@@ -130,14 +170,21 @@ const App: React.FC = () => {
       console.error('Sync error:', e);
       setSyncStatus('error');
     }
-  }, [gistConfig, buildSyncData, applySyncData]);
+  }, [auth, buildSyncData, applySyncData]);
 
-  // 首次加载时自动同步
+  // 登录后自动同步
   useEffect(() => {
-    if (gistConfig) {
+    if (auth && !hasOAuthCallback()) {
       handleSync();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auth]);
+
+  const handleLogout = useCallback(() => {
+    logoutAuth();
+    clearGistId();
+    setAuth(null);
+    setLastSyncTime(null);
   }, []);
 
   const handleToggleFavorite = useCallback((id: number) => {
@@ -232,11 +279,11 @@ const App: React.FC = () => {
 
       {/* 同步面板 */}
       <SyncPanel
-        onConfigChange={setGistConfig}
+        auth={auth}
+        onLogout={handleLogout}
         onSync={handleSync}
         syncStatus={syncStatus}
         lastSyncTime={lastSyncTime}
-        currentData={buildSyncData()}
       />
 
       <div className="sticky-filter" ref={stickyFilterRef}>

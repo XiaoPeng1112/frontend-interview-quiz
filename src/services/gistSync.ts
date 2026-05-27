@@ -1,14 +1,9 @@
 /**
  * GitHub Gist 跨端同步服务
- * 使用 GitHub Personal Access Token 读写 Gist 实现数据同步
+ * 通过 OAuth 获取的 token 读写 Gist 实现数据同步
  */
 
-const GIST_STORAGE_KEY = 'interview-quiz-gist-config';
-
-export interface GistConfig {
-  token: string;
-  gistId: string;
-}
+const GIST_ID_KEY = 'interview-quiz-gist-id';
 
 export interface SyncData {
   favorites: number[];
@@ -32,21 +27,37 @@ export interface InterviewRecord {
 
 const FILENAME = 'interview-quiz-sync.json';
 
-// 保存/读取 Gist 配置
-export function saveGistConfig(config: GistConfig): void {
-  localStorage.setItem(GIST_STORAGE_KEY, JSON.stringify(config));
+// Gist ID 本地缓存
+export function saveGistId(gistId: string): void {
+  localStorage.setItem(GIST_ID_KEY, gistId);
 }
 
-export function loadGistConfig(): GistConfig | null {
-  try {
-    const raw = localStorage.getItem(GIST_STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch {}
+export function loadGistId(): string | null {
+  return localStorage.getItem(GIST_ID_KEY);
+}
+
+export function clearGistId(): void {
+  localStorage.removeItem(GIST_ID_KEY);
+}
+
+// 搜索用户已有的同步 Gist
+export async function findExistingGist(token: string): Promise<string | null> {
+  const res = await fetch('https://api.github.com/gists', {
+    headers: {
+      'Authorization': `token ${token}`,
+      'User-Agent': 'interview-quiz',
+    },
+  });
+
+  if (!res.ok) return null;
+
+  const gists = await res.json();
+  for (const gist of gists) {
+    if (gist.files && gist.files[FILENAME]) {
+      return gist.id;
+    }
+  }
   return null;
-}
-
-export function clearGistConfig(): void {
-  localStorage.removeItem(GIST_STORAGE_KEY);
 }
 
 // 创建新 Gist
@@ -56,9 +67,10 @@ export async function createGist(token: string, data: SyncData): Promise<string>
     headers: {
       'Authorization': `token ${token}`,
       'Content-Type': 'application/json',
+      'User-Agent': 'interview-quiz',
     },
     body: JSON.stringify({
-      description: 'Frontend Interview Quiz - Sync Data',
+      description: 'Frontend Interview Quiz - Sync Data (auto-created)',
       public: false,
       files: {
         [FILENAME]: {
@@ -81,6 +93,7 @@ export async function readGist(token: string, gistId: string): Promise<SyncData 
   const res = await fetch(`https://api.github.com/gists/${gistId}`, {
     headers: {
       'Authorization': `token ${token}`,
+      'User-Agent': 'interview-quiz',
     },
   });
 
@@ -107,6 +120,7 @@ export async function updateGist(token: string, gistId: string, data: SyncData):
     headers: {
       'Authorization': `token ${token}`,
       'Content-Type': 'application/json',
+      'User-Agent': 'interview-quiz',
     },
     body: JSON.stringify({
       files: {
@@ -119,18 +133,6 @@ export async function updateGist(token: string, gistId: string, data: SyncData):
 
   if (!res.ok) {
     throw new Error(`更新 Gist 失败: ${res.status}`);
-  }
-}
-
-// 验证 Token 有效性
-export async function validateToken(token: string): Promise<boolean> {
-  try {
-    const res = await fetch('https://api.github.com/user', {
-      headers: { 'Authorization': `token ${token}` },
-    });
-    return res.ok;
-  } catch {
-    return false;
   }
 }
 

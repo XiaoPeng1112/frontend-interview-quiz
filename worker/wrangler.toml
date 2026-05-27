@@ -1,0 +1,10 @@
+name = "interview-quiz-oauth"
+main = "index.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+ALLOWED_ORIGIN = "https://xiaopeng1112.github.io"
+
+# 以下两个值需在 Cloudflare Dashboard → Workers → Settings → Variables 中设置为加密变量
+# GITHUB_CLIENT_ID = "你的 Client ID"
+# GITHUB_CLIENT_SECRET = "你的 Client Secret"
