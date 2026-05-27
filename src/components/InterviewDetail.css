@@ -1,0 +1,446 @@
+.interview-detail {
+  padding-bottom: 40px;
+}
+
+/* 顶部导航 */
+.detail-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.detail-back-btn {
+  font-size: 13px;
+  color: var(--primary-light);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 0;
+  font-weight: 500;
+}
+
+.detail-nav-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.detail-nav-date {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* 总览卡片 */
+.detail-overview {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  margin-bottom: 20px;
+}
+
+.overview-score-ring {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+}
+
+.score-ring-svg {
+  position: absolute;
+  inset: 0;
+  width: 80px;
+  height: 80px;
+}
+
+.score-ring-text {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+  z-index: 1;
+}
+
+.score-ring-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  z-index: 1;
+  margin-top: -2px;
+}
+
+.overview-stats {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.overview-stat-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.overview-stat-icon {
+  font-size: 14px;
+}
+
+.scores-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.mini-badge {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.mini-badge.mastered { background: rgba(74, 222, 128, 0.12); color: #4ade80; }
+.mini-badge.partial { background: rgba(251, 191, 36, 0.12); color: #fbbf24; }
+.mini-badge.failed { background: rgba(248, 113, 113, 0.12); color: #f87171; }
+
+/* Section */
+.detail-section {
+  margin-bottom: 24px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.section-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.section-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.section-action-btn {
+  font-size: 11px;
+  padding: 4px 8px;
+  border: 1px solid var(--card-border);
+  border-radius: 5px;
+  background: var(--card-bg);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.section-action-btn:active {
+  opacity: 0.7;
+}
+
+/* 薄弱分析 */
+.weak-analysis-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.weak-analysis-item {
+  padding: 10px 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+}
+
+.weak-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.weak-category-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.weak-score-rate {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.weak-score-rate.good { color: #4ade80; }
+.weak-score-rate.mid { color: #fbbf24; }
+.weak-score-rate.bad { color: #f87171; }
+
+.weak-item-bar {
+  display: flex;
+  height: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+  margin-bottom: 8px;
+}
+
+.weak-item-bar .bar-mastered { background: #4ade80; }
+.weak-item-bar .bar-partial { background: #fbbf24; }
+.weak-item-bar .bar-failed { background: #f87171; }
+
+.weak-item-detail {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.weak-tag {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.weak-tag.failed { background: rgba(248, 113, 113, 0.1); color: #f87171; }
+.weak-tag.partial { background: rgba(251, 191, 36, 0.1); color: #fbbf24; }
+.weak-tag.mastered { background: rgba(74, 222, 128, 0.1); color: #4ade80; }
+
+/* 成长建议 */
+.growth-tip {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.growth-tip-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.growth-tip-text {
+  font-size: 12px;
+  color: var(--primary-light);
+  line-height: 1.5;
+}
+
+/* 筛选 */
+.detail-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.detail-filter {
+  font-size: 11px;
+  padding: 5px 10px;
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  background: var(--card-bg);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.detail-filter.active {
+  border-color: var(--primary);
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--primary-light);
+}
+
+.detail-filter.failed.active {
+  border-color: rgba(248, 113, 113, 0.4);
+  background: rgba(248, 113, 113, 0.1);
+  color: #f87171;
+}
+
+.detail-filter.partial.active {
+  border-color: rgba(251, 191, 36, 0.4);
+  background: rgba(251, 191, 36, 0.1);
+  color: #fbbf24;
+}
+
+.detail-filter.mastered.active {
+  border-color: rgba(74, 222, 128, 0.4);
+  background: rgba(74, 222, 128, 0.1);
+  color: #4ade80;
+}
+
+/* 题目卡片 */
+.detail-questions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detail-q-card {
+  padding: 12px 14px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  transition: border-color 0.2s;
+}
+
+.detail-q-card.failed {
+  border-left: 3px solid #f87171;
+}
+
+.detail-q-card.partial {
+  border-left: 3px solid #fbbf24;
+}
+
+.detail-q-card.mastered {
+  border-left: 3px solid #4ade80;
+}
+
+.detail-q-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  margin-bottom: 6px;
+}
+
+.detail-q-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-q-num {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.detail-q-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.detail-q-badge.mastered { background: rgba(74, 222, 128, 0.12); color: #4ade80; }
+.detail-q-badge.partial { background: rgba(251, 191, 36, 0.12); color: #fbbf24; }
+.detail-q-badge.failed { background: rgba(248, 113, 113, 0.12); color: #f87171; }
+.detail-q-badge.skipped { background: rgba(148, 163, 184, 0.12); color: #94a3b8; }
+
+.detail-q-expand {
+  font-size: 12px;
+  color: var(--text-muted);
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+
+.detail-q-expand.open {
+  transform: rotate(180deg);
+}
+
+.detail-q-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.5;
+  cursor: pointer;
+  margin-bottom: 4px;
+}
+
+.detail-q-category {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* 参考答案 */
+.detail-q-answer {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--card-border);
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.answer-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary-light);
+  margin-bottom: 8px;
+}
+
+.answer-label.oral {
+  margin-top: 14px;
+  color: #4ade80;
+}
+
+.answer-content {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.answer-content.oral {
+  background: rgba(74, 222, 128, 0.04);
+  border-color: rgba(74, 222, 128, 0.1);
+}
+
+/* Empty */
+.detail-empty {
+  text-align: center;
+  padding: 32px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* 底部按钮 */
+.detail-bottom {
+  padding-top: 20px;
+  text-align: center;
+}
+
+.detail-bottom-btn {
+  padding: 12px 32px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.detail-bottom-btn:active {
+  transform: scale(0.97);
+  opacity: 0.8;
+}

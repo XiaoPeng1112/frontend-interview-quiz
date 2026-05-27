@@ -8,7 +8,9 @@
   top: 0;
   z-index: 100;
   background: linear-gradient(160deg, var(--bg-start) 0%, var(--bg-mid) 50%, var(--bg-end) 100%);
-  padding: 0 0 12px;
+  padding: 0 16px 12px;
+  margin: 0 -16px;
+  width: calc(100% + 32px);
   border-bottom: 1px solid var(--card-border);
   margin-bottom: 16px;
 }
