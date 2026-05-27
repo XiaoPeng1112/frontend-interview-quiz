@@ -4,8 +4,8 @@
  */
 
 // ⚠️ 部署后替换为你实际的值
-const GITHUB_CLIENT_ID = 'REPLACE_WITH_YOUR_CLIENT_ID';
-const WORKER_BASE_URL = 'https://interview-quiz-oauth.YOUR_SUBDOMAIN.workers.dev';
+const GITHUB_CLIENT_ID = 'Ov23libCgqpP2DKZOyuF';
+const WORKER_BASE_URL = 'https://interview-quiz-oauth.2432573771.workers.dev';
 
 const AUTH_STORAGE_KEY = 'interview-quiz-auth';
 
