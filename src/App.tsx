@@ -1,16 +1,73 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { questions, categories, Question } from './data/questions';
 import CategoryFilter from './components/CategoryFilter';
 import DifficultyFilter from './components/DifficultyFilter';
 import QuestionCard from './components/QuestionCard';
+import BottomBar, { TabKey } from './components/BottomBar';
+import MockInterview from './components/MockInterview';
+import Favorites from './components/Favorites';
 import './App.css';
 
+type MarkType = 'favorite' | 'mastered' | 'weak';
+
+// localStorage helpers
+const STORAGE_KEY_FAV = 'interview-quiz-favorites';
+const STORAGE_KEY_MARKS = 'interview-quiz-marks';
+
+function loadFavorites(): Set<number> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_FAV);
+    if (raw) return new Set(JSON.parse(raw));
+  } catch {}
+  return new Set();
+}
+
+function loadMarks(): Record<number, MarkType> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_MARKS);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return {};
+}
+
 const App: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<TabKey>('library');
   const [activeCategory, setActiveCategory] = useState('全部');
   const [activeDifficulty, setActiveDifficulty] = useState('all');
   const [searchText, setSearchText] = useState('');
   const [stickyTop, setStickyTop] = useState(0);
   const stickyFilterRef = useRef<HTMLDivElement>(null);
+
+  // 收藏/标记状态
+  const [favorites, setFavorites] = useState<Set<number>>(loadFavorites);
+  const [marks, setMarks] = useState<Record<number, MarkType>>(loadMarks);
+
+  // 持久化
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_FAV, JSON.stringify(Array.from(favorites)));
+  }, [favorites]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_MARKS, JSON.stringify(marks));
+  }, [marks]);
+
+  const handleToggleFavorite = useCallback((id: number) => {
+    setFavorites(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const handleSetMark = useCallback((id: number, mark: MarkType | null) => {
+    setMarks(prev => {
+      const next = { ...prev };
+      if (mark === null) delete next[id];
+      else next[id] = mark;
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     const el = stickyFilterRef.current;
@@ -21,7 +78,6 @@ const App: React.FC = () => {
     };
     updateHeight();
 
-    // 使用 ResizeObserver 监听筛选区域高度变化（展开/收起分类时）
     const ro = new ResizeObserver(() => {
       setStickyTop(el.offsetHeight);
     });
@@ -55,8 +111,8 @@ const App: React.FC = () => {
     return { total, hard, categoryCount };
   }, []);
 
-  return (
-    <div className="app">
+  const renderLibrary = () => (
+    <>
       <header className="app-header">
         <h1>Frontend Interview</h1>
         <p className="subtitle">RN 架构 · AI Native · 系统设计</p>
@@ -77,7 +133,6 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      {/* Sticky filter area */}
       <div className="sticky-filter" ref={stickyFilterRef}>
         <div className="search-bar">
           <span className="search-icon">🔍</span>
@@ -122,7 +177,29 @@ const App: React.FC = () => {
 
       <div className="question-list">
         {filteredQuestions.map((q) => (
-          <QuestionCard key={q.id} question={q} stickyTop={stickyTop} />
+          <div key={q.id} className="question-item-wrap">
+            <div className="question-item-actions">
+              <button
+                className={`q-mark-btn ${favorites.has(q.id) ? 'active' : ''}`}
+                onClick={() => handleToggleFavorite(q.id)}
+              >
+                {favorites.has(q.id) ? '⭐' : '☆'}
+              </button>
+              <button
+                className={`q-mark-btn small ${marks[q.id] === 'mastered' ? 'mastered' : ''}`}
+                onClick={() => handleSetMark(q.id, marks[q.id] === 'mastered' ? null : 'mastered')}
+              >
+                ✅
+              </button>
+              <button
+                className={`q-mark-btn small ${marks[q.id] === 'weak' ? 'weak' : ''}`}
+                onClick={() => handleSetMark(q.id, marks[q.id] === 'weak' ? null : 'weak')}
+              >
+                ❗
+              </button>
+            </div>
+            <QuestionCard question={q} stickyTop={stickyTop} />
+          </div>
         ))}
         {filteredQuestions.length === 0 && (
           <div className="empty-state">
@@ -137,6 +214,22 @@ const App: React.FC = () => {
         <p className="footer-line">持续更新 · 助力面试</p>
         <p>Built for Senior RN Developer</p>
       </footer>
+    </>
+  );
+
+  return (
+    <div className="app">
+      {activeTab === 'library' && renderLibrary()}
+      {activeTab === 'mock' && <MockInterview />}
+      {activeTab === 'favorites' && (
+        <Favorites
+          favorites={favorites}
+          marks={marks}
+          onToggleFavorite={handleToggleFavorite}
+          onSetMark={handleSetMark}
+        />
+      )}
+      <BottomBar activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   );
 };

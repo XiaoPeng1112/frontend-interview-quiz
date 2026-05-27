@@ -1,0 +1,138 @@
+.favorites-page {
+  padding-bottom: 20px;
+}
+
+.favorites-header {
+  text-align: center;
+  padding: 32px 0 20px;
+}
+
+.favorites-header h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.favorites-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Filters */
+.favorites-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.fav-filter {
+  padding: 7px 12px;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fav-filter.active {
+  border-color: var(--primary);
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--primary-light);
+}
+
+.fav-filter:active {
+  transform: scale(0.95);
+}
+
+.fav-count {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.7;
+}
+
+/* List */
+.favorites-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.favorite-item {
+  position: relative;
+}
+
+.favorite-actions {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+  padding-left: 2px;
+}
+
+.mark-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: var(--card-bg);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  opacity: 0.5;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mark-btn.active {
+  opacity: 1;
+  border-color: var(--primary);
+  background: rgba(99, 102, 241, 0.12);
+}
+
+.mark-btn.mastered {
+  border-color: rgba(34, 197, 94, 0.4);
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.mark-btn.weak {
+  border-color: rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.mark-btn:active {
+  transform: scale(0.9);
+}
+
+/* Empty */
+.favorites-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+
+.favorites-empty .empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.6;
+}
+
+.favorites-empty p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.favorites-empty .empty-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+}
