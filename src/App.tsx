@@ -6,6 +6,16 @@ import QuestionCard from './components/QuestionCard';
 import BottomBar, { TabKey } from './components/BottomBar';
 import MockInterview from './components/MockInterview';
 import Favorites from './components/Favorites';
+import SyncPanel from './components/SyncPanel';
+import {
+  GistConfig,
+  SyncData,
+  InterviewRecord,
+  loadGistConfig,
+  readGist,
+  updateGist,
+  mergeData,
+} from './services/gistSync';
 import './App.css';
 
 type MarkType = 'favorite' | 'mastered' | 'weak';
@@ -13,6 +23,7 @@ type MarkType = 'favorite' | 'mastered' | 'weak';
 // localStorage helpers
 const STORAGE_KEY_FAV = 'interview-quiz-favorites';
 const STORAGE_KEY_MARKS = 'interview-quiz-marks';
+const STORAGE_KEY_HISTORY = 'interview-quiz-history';
 
 function loadFavorites(): Set<number> {
   try {
@@ -30,6 +41,14 @@ function loadMarks(): Record<number, MarkType> {
   return {};
 }
 
+function loadHistory(): InterviewRecord[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_HISTORY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return [];
+}
+
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabKey>('library');
   const [activeCategory, setActiveCategory] = useState('全部');
@@ -38,11 +57,17 @@ const App: React.FC = () => {
   const [stickyTop, setStickyTop] = useState(0);
   const stickyFilterRef = useRef<HTMLDivElement>(null);
 
-  // 收藏/标记状态
+  // 核心数据状态
   const [favorites, setFavorites] = useState<Set<number>>(loadFavorites);
   const [marks, setMarks] = useState<Record<number, MarkType>>(loadMarks);
+  const [interviewHistory, setInterviewHistory] = useState<InterviewRecord[]>(loadHistory);
 
-  // 持久化
+  // 同步状态
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
+  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
+  const [gistConfig, setGistConfig] = useState<GistConfig | null>(loadGistConfig);
+
+  // 持久化到 localStorage
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY_FAV, JSON.stringify(Array.from(favorites)));
   }, [favorites]);
@@ -50,6 +75,70 @@ const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY_MARKS, JSON.stringify(marks));
   }, [marks]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(interviewHistory));
+  }, [interviewHistory]);
+
+  // 构建当前同步数据快照
+  const buildSyncData = useCallback((): SyncData => ({
+    favorites: Array.from(favorites),
+    marks: Object.fromEntries(
+      Object.entries(marks).map(([k, v]) => [k, v])
+    ),
+    interviewHistory,
+    lastSyncAt: new Date().toISOString(),
+  }), [favorites, marks, interviewHistory]);
+
+  // 从 SyncData 恢复状态
+  const applySyncData = useCallback((data: SyncData) => {
+    setFavorites(new Set(data.favorites));
+    const restoredMarks: Record<number, MarkType> = {};
+    for (const [k, v] of Object.entries(data.marks)) {
+      if (v === 'favorite' || v === 'mastered' || v === 'weak') {
+        restoredMarks[Number(k)] = v as MarkType;
+      }
+    }
+    setMarks(restoredMarks);
+    setInterviewHistory(data.interviewHistory || []);
+  }, []);
+
+  // 同步操作
+  const handleSync = useCallback(async () => {
+    if (!gistConfig) return;
+
+    setSyncStatus('syncing');
+    try {
+      const remoteData = await readGist(gistConfig.token, gistConfig.gistId);
+      const localData = buildSyncData();
+
+      if (remoteData) {
+        // 合并
+        const merged = mergeData(localData, remoteData);
+        applySyncData(merged);
+        await updateGist(gistConfig.token, gistConfig.gistId, merged);
+        setLastSyncTime(merged.lastSyncAt);
+      } else {
+        // 远端为空，直接上传本地
+        await updateGist(gistConfig.token, gistConfig.gistId, localData);
+        setLastSyncTime(localData.lastSyncAt);
+      }
+
+      setSyncStatus('success');
+      setTimeout(() => setSyncStatus('idle'), 2000);
+    } catch (e) {
+      console.error('Sync error:', e);
+      setSyncStatus('error');
+    }
+  }, [gistConfig, buildSyncData, applySyncData]);
+
+  // 首次加载时自动同步
+  useEffect(() => {
+    if (gistConfig) {
+      handleSync();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleToggleFavorite = useCallback((id: number) => {
     setFavorites(prev => {
@@ -67,6 +156,14 @@ const App: React.FC = () => {
       else next[id] = mark;
       return next;
     });
+  }, []);
+
+  const handleSaveRecord = useCallback((record: InterviewRecord) => {
+    setInterviewHistory(prev => [record, ...prev]);
+  }, []);
+
+  const handleClearHistory = useCallback(() => {
+    setInterviewHistory([]);
   }, []);
 
   useEffect(() => {
@@ -132,6 +229,15 @@ const App: React.FC = () => {
           <span className="stat-label">高难度题</span>
         </div>
       </div>
+
+      {/* 同步面板 */}
+      <SyncPanel
+        onConfigChange={setGistConfig}
+        onSync={handleSync}
+        syncStatus={syncStatus}
+        lastSyncTime={lastSyncTime}
+        currentData={buildSyncData()}
+      />
 
       <div className="sticky-filter" ref={stickyFilterRef}>
         <div className="search-bar">
@@ -220,7 +326,13 @@ const App: React.FC = () => {
   return (
     <div className="app">
       {activeTab === 'library' && renderLibrary()}
-      {activeTab === 'mock' && <MockInterview />}
+      {activeTab === 'mock' && (
+        <MockInterview
+          interviewHistory={interviewHistory}
+          onSaveRecord={handleSaveRecord}
+          onClearHistory={handleClearHistory}
+        />
+      )}
       {activeTab === 'favorites' && (
         <Favorites
           favorites={favorites}

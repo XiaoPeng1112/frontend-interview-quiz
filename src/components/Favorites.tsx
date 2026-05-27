@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { questions, Question } from '../data/questions';
+import { questions } from '../data/questions';
 import QuestionCard from './QuestionCard';
 import './Favorites.css';
 

@@ -1,0 +1,139 @@
+.interview-history {
+  margin-top: 20px;
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.history-header h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.history-clear-btn {
+  font-size: 11px;
+  padding: 4px 8px;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 5px;
+  background: rgba(239, 68, 68, 0.06);
+  color: #f87171;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.history-clear-btn:active {
+  transform: scale(0.94);
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.history-card {
+  padding: 12px 14px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+}
+
+.history-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.history-date {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.history-category {
+  font-size: 11px;
+  padding: 2px 7px;
+  background: rgba(99, 102, 241, 0.1);
+  border-radius: 4px;
+  color: var(--primary-light);
+}
+
+.history-card-stats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.history-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+}
+
+.history-stat-val {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.history-stat-val.score-rate {
+  color: var(--primary-light);
+}
+
+.history-stat-label {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.history-card-bar {
+  display: flex;
+  height: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.bar-mastered {
+  background: #4ade80;
+  transition: width 0.3s;
+}
+
+.bar-partial {
+  background: #fbbf24;
+  transition: width 0.3s;
+}
+
+.bar-failed {
+  background: #f87171;
+  transition: width 0.3s;
+}
+
+/* Empty */
+.history-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+
+.history-empty-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+  opacity: 0.6;
+}
+
+.history-empty p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.history-empty-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+}

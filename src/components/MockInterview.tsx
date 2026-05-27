@@ -1,23 +1,51 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { questions, categories } from '../data/questions';
 import type { Question } from '../data/questions';
+import type { InterviewRecord } from '../services/gistSync';
+import {
+  isSpeechRecognitionSupported,
+  isSpeechSynthesisSupported,
+  startRecognition,
+  stopRecognition,
+  speakText,
+  stopSpeaking,
+  RecognitionStatus,
+} from '../services/speechService';
 import QuestionCard from './QuestionCard';
+import InterviewHistory from './InterviewHistory';
 import './MockInterview.css';
 
 type SelfScore = 0 | 1 | 2 | 3; // 0=未评 1=不会 2=部分 3=掌握
 
-const MockInterview: React.FC = () => {
+interface Props {
+  interviewHistory: InterviewRecord[];
+  onSaveRecord: (record: InterviewRecord) => void;
+  onClearHistory: () => void;
+}
+
+const MockInterview: React.FC<Props> = ({ interviewHistory, onSaveRecord, onClearHistory }) => {
   const [mode, setMode] = useState<'idle' | 'interviewing' | 'finished'>('idle');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [drawnQuestions, setDrawnQuestions] = useState<Question[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('全部');
   const [questionCount, setQuestionCount] = useState(10);
   const [scores, setScores] = useState<SelfScore[]>([]);
-  const [elapsed, setElapsed] = useState(0); // 总用时(秒)
-  const [questionTimes, setQuestionTimes] = useState<number[]>([]); // 每题用时
+  const [elapsed, setElapsed] = useState(0);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [questionTimes, setQuestionTimes] = useState<number[]>([]);
   const [slideDir, setSlideDir] = useState<'left' | 'right' | ''>('');
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const questionStartRef = useRef(0);
+
+  // 语音相关
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [recognitionStatus, setRecognitionStatus] = useState<RecognitionStatus>('idle');
+  const [spokenText, setSpokenText] = useState('');
+  const [interimText, setInterimText] = useState('');
+  const [isTTSPlaying, setIsTTSPlaying] = useState(false);
+
+  const hasSTT = isSpeechRecognitionSupported();
+  const hasTTS = isSpeechSynthesisSupported();
 
   const availableCategories = useMemo(() => categories, []);
 
@@ -32,6 +60,18 @@ const MockInterview: React.FC = () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [mode]);
+
+  // 切题时重置语音
+  useEffect(() => {
+    setSpokenText('');
+    setInterimText('');
+    if (recognitionStatus === 'listening') {
+      stopRecognition();
+    }
+    stopSpeaking();
+    setIsTTSPlaying(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentIndex]);
 
   const formatTime = (s: number) => {
     const min = Math.floor(s / 60);
@@ -55,6 +95,8 @@ const MockInterview: React.FC = () => {
     setCurrentIndex(0);
     setElapsed(0);
     setSlideDir('');
+    setSpokenText('');
+    setInterimText('');
     questionStartRef.current = Date.now();
     setMode('interviewing');
   }, [selectedCategory, questionCount]);
@@ -80,15 +122,41 @@ const MockInterview: React.FC = () => {
     }, 150);
   }, [currentIndex, recordQuestionTime]);
 
+  const finishInterview = useCallback(() => {
+    recordQuestionTime(currentIndex);
+    if (timerRef.current) clearInterval(timerRef.current);
+    stopRecognition();
+    stopSpeaking();
+    setMode('finished');
+  }, [currentIndex, recordQuestionTime]);
+
+  // 面试结束时保存记录
+  useEffect(() => {
+    if (mode === 'finished' && drawnQuestions.length > 0) {
+      const record: InterviewRecord = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        date: new Date().toISOString(),
+        category: selectedCategory,
+        totalQuestions: drawnQuestions.length,
+        elapsed,
+        scores: scores as number[],
+        questionIds: drawnQuestions.map(q => q.id),
+        masteredCount: scores.filter(s => s === 3).length,
+        partialCount: scores.filter(s => s === 2).length,
+        failedCount: scores.filter(s => s === 1).length,
+      };
+      onSaveRecord(record);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode]);
+
   const handleNext = useCallback(() => {
     if (currentIndex < drawnQuestions.length - 1) {
       goToQuestion(currentIndex + 1);
     } else {
-      recordQuestionTime(currentIndex);
-      if (timerRef.current) clearInterval(timerRef.current);
-      setMode('finished');
+      finishInterview();
     }
-  }, [currentIndex, drawnQuestions.length, goToQuestion, recordQuestionTime]);
+  }, [currentIndex, drawnQuestions.length, goToQuestion, finishInterview]);
 
   const handlePrev = useCallback(() => {
     if (currentIndex > 0) {
@@ -111,7 +179,47 @@ const MockInterview: React.FC = () => {
     setScores([]);
     setQuestionTimes([]);
     setElapsed(0);
+    setSpokenText('');
+    setInterimText('');
   }, []);
+
+  // 语音识别控制
+  const toggleRecognition = useCallback(() => {
+    if (recognitionStatus === 'listening') {
+      stopRecognition();
+      setRecognitionStatus('idle');
+    } else {
+      startRecognition({
+        onResult: (text, isFinal) => {
+          if (isFinal) {
+            setSpokenText(prev => prev + text);
+            setInterimText('');
+          } else {
+            setInterimText(text);
+          }
+        },
+        onStatusChange: setRecognitionStatus,
+        onError: (err) => {
+          console.warn('Speech recognition error:', err);
+          setRecognitionStatus('error');
+        },
+      });
+    }
+  }, [recognitionStatus]);
+
+  // TTS 读题
+  const handleReadQuestion = useCallback(() => {
+    if (isTTSPlaying) {
+      stopSpeaking();
+      setIsTTSPlaying(false);
+    } else {
+      const currentQ = drawnQuestions[currentIndex];
+      if (currentQ) {
+        setIsTTSPlaying(true);
+        speakText(currentQ.question, () => setIsTTSPlaying(false));
+      }
+    }
+  }, [isTTSPlaying, drawnQuestions, currentIndex]);
 
   // idle 模式：设置页
   if (mode === 'idle') {
@@ -162,17 +270,37 @@ const MockInterview: React.FC = () => {
             </div>
           </div>
 
+          {/* 语音模式开关 */}
+          {(hasSTT || hasTTS) && (
+            <div className="setting-item">
+              <label className="setting-label">语音模式</label>
+              <div className="voice-toggle">
+                <button
+                  className={`setting-option ${voiceEnabled ? 'active' : ''}`}
+                  onClick={() => setVoiceEnabled(!voiceEnabled)}
+                >
+                  🎙️ {voiceEnabled ? '已开启' : '开启语音'}
+                </button>
+                <span className="voice-hint">
+                  {hasSTT && hasTTS ? '支持语音读题 + 语音作答'
+                    : hasSTT ? '支持语音作答'
+                    : '支持语音读题'}
+                </span>
+              </div>
+            </div>
+          )}
+
           <div className="setting-item">
             <label className="setting-label">模拟面试流程</label>
             <div className="mock-flow">
               <div className="flow-step">
                 <span className="flow-num">1</span>
-                <span className="flow-text">看题思考</span>
+                <span className="flow-text">{voiceEnabled && hasTTS ? '听题' : '看题思考'}</span>
               </div>
               <div className="flow-arrow">→</div>
               <div className="flow-step">
                 <span className="flow-num">2</span>
-                <span className="flow-text">展开答案</span>
+                <span className="flow-text">{voiceEnabled && hasSTT ? '语音作答' : '展开答案'}</span>
               </div>
               <div className="flow-arrow">→</div>
               <div className="flow-step">
@@ -186,6 +314,9 @@ const MockInterview: React.FC = () => {
         <button className="mock-start-btn" onClick={startInterview}>
           开始面试（{Math.min(questionCount, poolSize)} 题）
         </button>
+
+        {/* 面试历史 */}
+        <InterviewHistory records={interviewHistory} onClear={onClearHistory} />
       </div>
     );
   }
@@ -267,7 +398,6 @@ const MockInterview: React.FC = () => {
             )}
           </div>
 
-          {/* 薄弱题目列表 */}
           {failedCount > 0 && (
             <div className="finish-weak-list">
               <h3>需要加强的题目</h3>
@@ -300,11 +430,7 @@ const MockInterview: React.FC = () => {
     <div className="mock-interview">
       {/* 顶部状态栏 */}
       <div className="mock-topbar">
-        <button className="mock-quit-btn" onClick={() => {
-          recordQuestionTime(currentIndex);
-          if (timerRef.current) clearInterval(timerRef.current);
-          setMode('finished');
-        }}>
+        <button className="mock-quit-btn" onClick={finishInterview}>
           结束
         </button>
         <div className="mock-timer">
@@ -337,10 +463,43 @@ const MockInterview: React.FC = () => {
         ))}
       </div>
 
+      {/* 语音控制区 */}
+      {voiceEnabled && (
+        <div className="voice-controls">
+          {hasTTS && (
+            <button
+              className={`voice-btn tts ${isTTSPlaying ? 'active' : ''}`}
+              onClick={handleReadQuestion}
+            >
+              {isTTSPlaying ? '⏹ 停止' : '🔊 读题'}
+            </button>
+          )}
+          {hasSTT && (
+            <button
+              className={`voice-btn stt ${recognitionStatus === 'listening' ? 'active recording' : ''}`}
+              onClick={toggleRecognition}
+            >
+              {recognitionStatus === 'listening' ? '⏹ 停止录音' : '🎙️ 语音作答'}
+            </button>
+          )}
+        </div>
+      )}
+
       {/* 题目卡片 */}
       <div className={`mock-question-area ${slideDir ? `slide-out-${slideDir}` : 'slide-in'}`}>
         <QuestionCard question={currentQuestion} stickyTop={0} />
       </div>
+
+      {/* 语音识别结果 */}
+      {voiceEnabled && hasSTT && (spokenText || interimText) && (
+        <div className="voice-result">
+          <div className="voice-result-label">我的回答：</div>
+          <div className="voice-result-text">
+            {spokenText}
+            {interimText && <span className="interim">{interimText}</span>}
+          </div>
+        </div>
+      )}
 
       {/* 自评打分 */}
       <div className="mock-scoring">
