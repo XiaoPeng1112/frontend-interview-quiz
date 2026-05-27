@@ -15,6 +15,7 @@ const difficultyMap = {
 
 const QuestionCard: React.FC<Props> = ({ question, stickyTop = 0 }) => {
   const [showAnswer, setShowAnswer] = useState(false);
+  const [answerTab, setAnswerTab] = useState<'key' | 'oral'>('key');
   const difficulty = difficultyMap[question.difficulty];
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -29,6 +30,8 @@ const QuestionCard: React.FC<Props> = ({ question, stickyTop = 0 }) => {
       }
     }, 50);
   }, [stickyTop]);
+
+  const hasOralAnswer = !!question.oralAnswer;
 
   return (
     <div className={`question-card ${showAnswer ? 'expanded' : ''}`} ref={cardRef}>
@@ -58,7 +61,27 @@ const QuestionCard: React.FC<Props> = ({ question, stickyTop = 0 }) => {
 
       {showAnswer && (
         <div className="answer-content">
-          <pre>{question.answer}</pre>
+          {hasOralAnswer && (
+            <div className="answer-tabs">
+              <button
+                className={`answer-tab ${answerTab === 'key' ? 'active' : ''}`}
+                onClick={() => setAnswerTab('key')}
+              >
+                要点版
+              </button>
+              <button
+                className={`answer-tab ${answerTab === 'oral' ? 'active' : ''}`}
+                onClick={() => setAnswerTab('oral')}
+              >
+                口语版
+              </button>
+            </div>
+          )}
+          <pre>
+            {answerTab === 'oral' && hasOralAnswer
+              ? question.oralAnswer
+              : question.answer}
+          </pre>
         </div>
       )}
     </div>

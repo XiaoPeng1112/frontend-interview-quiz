@@ -13,14 +13,25 @@ const App: React.FC = () => {
   const stickyFilterRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const el = stickyFilterRef.current;
+    if (!el) return;
+
     const updateHeight = () => {
-      if (stickyFilterRef.current) {
-        setStickyTop(stickyFilterRef.current.offsetHeight);
-      }
+      setStickyTop(el.offsetHeight);
     };
     updateHeight();
+
+    // 使用 ResizeObserver 监听筛选区域高度变化（展开/收起分类时）
+    const ro = new ResizeObserver(() => {
+      setStickyTop(el.offsetHeight);
+    });
+    ro.observe(el);
+
     window.addEventListener('resize', updateHeight);
-    return () => window.removeEventListener('resize', updateHeight);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', updateHeight);
+    };
   }, []);
 
   const filteredQuestions = useMemo(() => {

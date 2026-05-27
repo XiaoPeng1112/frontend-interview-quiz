@@ -16,6 +16,7 @@ import { resumeQuestions } from './resume-questions';
 import { resumeRound1Questions } from './resume-round1-questions';
 import { resumeRound2Questions } from './resume-round2-questions';
 import { resumeSkillsQuestions } from './resume-skills-questions';
+import { resumeProject1Questions } from './resume-project1-questions';
 
 export type { Question };
 
@@ -25,6 +26,7 @@ export const categories = [
   '技能考察',
   '一面追问',
   '二面深度',
+  '美团项目',
   'React Native',
   'RN 架构深度',
   'React',
@@ -58,4 +60,5 @@ export const questions: Question[] = [
   ...resumeRound1Questions,
   ...resumeRound2Questions,
   ...resumeSkillsQuestions,
+  ...resumeProject1Questions,
 ];

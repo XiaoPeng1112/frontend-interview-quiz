@@ -4,4 +4,5 @@ export interface Question {
   difficulty: 'easy' | 'medium' | 'hard';
   question: string;
   answer: string;
+  oralAnswer?: string;
 }

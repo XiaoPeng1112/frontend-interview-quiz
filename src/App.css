@@ -96,7 +96,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  padding: 10px 16px 8px;
+  padding: 8px 16px 6px;
   margin: 0 -16px;
   background: linear-gradient(160deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
   background-attachment: fixed;
@@ -104,7 +104,7 @@ body {
 
 /* Search */
 .search-bar {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   position: relative;
 }
 
@@ -120,10 +120,10 @@ body {
 
 .search-input {
   width: 100%;
-  padding: 12px 40px 12px 38px;
+  padding: 9px 40px 9px 38px;
   border: 1px solid var(--card-border);
-  border-radius: 12px;
-  font-size: 14px;
+  border-radius: 10px;
+  font-size: 13px;
   background: rgba(255, 255, 255, 0.05);
   color: var(--text-primary);
   outline: none;
@@ -167,8 +167,8 @@ body {
 /* Question Count */
 .question-count {
   color: var(--text-secondary);
-  font-size: 13px;
-  margin-top: 8px;
+  font-size: 12px;
+  margin-top: 6px;
   padding-left: 2px;
   display: flex;
   align-items: center;
