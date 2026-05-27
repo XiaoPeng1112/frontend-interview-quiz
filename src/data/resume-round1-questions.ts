@@ -16,6 +16,11 @@ export const resumeRound1Questions: Question[] = [
 7. GPU 合成：系统光栅化，提交 GPU 绘制
 
 与 Web 区别：没有 DOM，直接映射原生组件；布局计算在独立线程。`,
+    oralAnswer: `RN 渲染流程可以分 7 步讲。
+
+首先 JSX 被 Babel 编译成 React.createElement 调用。然后 React Reconciler 执行组件函数生成 Virtual DOM 树。接着做 Diff 对比新旧 VDOM 产生变更指令。变更通过 Bridge 或新架构的 JSI 传递给 Native 端。Native 端的 Yoga 引擎计算 Flexbox 布局生成 Shadow Tree。然后创建或更新真正的原生 View。最后系统做光栅化提交 GPU 绘制到屏幕。
+
+和 Web 最大的区别是 RN 没有 DOM，JSX 里的 View、Text 直接映射到 iOS 的 UIView 和 Android 的 View。另外布局计算在独立线程做，不会阻塞 JS 线程。`,
   },
   {
     id: 3002,
@@ -34,6 +39,11 @@ useState('b')  -> memoizedState[2]
 条件语句会导致某次渲染跳过某个 Hook，后续所有 Hook 索引错位，状态混乱。
 
 项目实践：MRN 模块中封装了 useModuleData、useExposure 等自定义 Hooks，ESLint exhaustive-deps 强制检查依赖数组。`,
+    oralAnswer: `Hooks 有两条核心规则：第一只能在函数组件或自定义 Hook 的顶层调用，第二不能放在 if、for 或嵌套函数里。
+
+原因是 React 内部用调用顺序来追踪每个 Hook 的状态，形成一个链表结构。比如第一个 useState 对应索引 0，第二个 useEffect 对应索引 1，以此类推。如果你放在条件语句里，某次渲染跳过了一个 Hook，后面所有 Hook 的索引就错位了，状态全乱了。
+
+我们项目中封装了 useModuleData、useExposure 这些自定义 Hooks，用 ESLint 的 exhaustive-deps 规则强制检查依赖数组，避免遗漏依赖导致的闭包陈旧问题。`,
   },
   {
     id: 3003,
@@ -52,6 +62,11 @@ RN 中典型场景和解决方案：
 - MRNBox 快照：用缓存数据先渲染首屏，消除最大的白屏->有内容跳变
 - 批量更新：unstable_batchedUpdates 合并多个状态变更
 - 渐显动画：opacity 0->1 过渡，视觉更平滑`,
+    oralAnswer: `布局跳变就是页面元素在渲染过程中位置或尺寸突然变化，导致视觉抖动，用户体验很差。
+
+RN 中典型场景有几个：图片加载撑开高度——解决方案是预设 aspectRatio 或固定宽高。异步数据导致模块突然出现——用骨架屏占位。SKU 切换后价格宽度变化——加最小宽度约束。
+
+我们的系统性方案是 MRNBox 快照：用上一次缓存的数据先渲染首屏，这样用户看到的不是白屏到内容的跳变，而是有内容的状态。再配合 unstable_batchedUpdates 合并多个状态变更减少中间态，以及渐显动画让过渡更平滑。`,
   },
   {
     id: 3004,
@@ -70,6 +85,11 @@ RN 中典型场景和解决方案：
 - 详情页模块垂直排列：flexDirection: 'column'
 - BottomBar 水平排列：flexDirection: 'row', justifyContent: 'space-between'
 - SKU 标签网格：flexWrap: 'wrap' + 固定宽度`,
+    oralAnswer: `RN 的 Flexbox 和 Web 的有几个关键区别。
+
+第一，默认方向不一样。RN 默认是 column 纵向排列，Web 默认是 row 横向。第二，flex 简写含义不同，RN 里 flex:1 等于 flexGrow:1 加 flexShrink:1 加 flexBasis:0。第三，早期 RN 不支持 gap 属性，需要用 margin 模拟，0.71 之后才支持。第四，百分比布局父容器必须有确定尺寸否则无效。第五，overflow 默认值不同，RN 默认 hidden。第六，RN 没有 px、rem 这些单位，数字默认是 dp 逻辑像素。
+
+项目中我们详情页模块纵向排列用 column，BottomBar 横向用 row 加 space-between，SKU 标签网格用 flexWrap wrap 加固定宽度实现。`,
   },
   {
     id: 3005,
@@ -102,6 +122,11 @@ const data = await Promise.race([
 - BFF 聚合了多个后端接口，前端一次请求即可
 - 非 BFF 场景用 Promise.all 并发请求多个独立接口
 - 配合 AbortController 做请求取消`,
+    oralAnswer: `Promise 是异步操作的容器，有 pending、fulfilled、rejected 三种状态。async/await 是 Promise 的语法糖，让异步代码写起来像同步的。
+
+处理多个并发请求有三种方式。Promise.all 是全部成功才返回，任一失败整体就失败，适合所有数据都是必需的场景，比如同时请求用户信息、SKU 数据和门店列表。Promise.allSettled 是不管成功失败都返回结果，适合非关键模块，部分失败不影响整体。Promise.race 取最快返回的那个，常用来做超时控制。
+
+我们项目中 BFF 已经在服务端聚合了多个接口，前端一次请求就够了。非 BFF 场景用 Promise.all 并发，再配合 AbortController 做请求取消，避免页面切走了请求还在跑。`,
   },
   {
     id: 3006,
@@ -133,6 +158,13 @@ const { run: doSearch, cancel } = useDebounceFn(
     },
     { wait: 300 }
 );`,
+    oralAnswer: `aHooks 是阿里出的 React Hooks 工具库，我常用的有这几个。
+
+useRequest 做请求管理，自带 loading、error、data 状态加重试和防抖。useDebounceFn 和 useThrottleFn 做防抖节流。useMount 和 useUnmount 处理生命周期。useSetState 实现合并式的 setState 类似 class 组件。useLocalStorageState 做持久化。usePrevious 获取上一次的值。useUpdateEffect 跳过首次执行。
+
+和自己实现的区别主要是：边界处理更完善，比如组件卸载后不会再 setState 导致内存泄漏。TypeScript 泛型支持完整。经过大量生产环境验证。而且统一了团队代码风格。
+
+建盛材项目里搜索功能就用了 useDebounceFn，300ms 防抖加 AbortController 取消上一次请求，既省请求又避免竞态。`,
   },
   {
     id: 3007,
@@ -174,6 +206,13 @@ InteractionManager.runAfterInteractions(() => {
 // 这样点击时Bundle已在内存，容器秒开
 
 时间节省：Bundle预加载省200-400ms + 预请求并行省150-300ms`,
+    oralAnswer: `点击预请求的核心思路是把串行变并行。
+
+传统流程是用户点击、打开容器、加载 Bundle、执行 JS、发 BFF 请求、等响应、渲染，全部串行下来大概 600ms。优化后用户点击的瞬间 Native 就立即发起 BFF 请求，同时打开容器加载 Bundle。等 Bundle 就绪时数据很可能已经回来了，直接渲染。总耗时变成 max(Bundle时间, 网络时间) 加渲染时间，大约 400ms。
+
+JS 侧实现就是 useEffect 里先尝试获取预请求数据，有就直接用，没有就走正常请求做 fallback。
+
+再配合 Bundle 预加载——列表页滑动空闲时 InteractionManager.runAfterInteractions 里预加载详情 Bundle，这样点击时 Bundle 已经在内存了，容器秒开。两个优化加起来能省 350 到 700ms。`,
   },
   {
     id: 3008,
@@ -211,6 +250,13 @@ function DetailPage({ moduleList, response }) {
 - 用 FlatList 代替 ScrollView，超出视口的模块不创建 View
 - 首屏只渲染 4-5 个模块而非全部 20+
 - JS 执行时间减少 60%+`,
+    oralAnswer: `模块优先级渲染的核心思路是把 20 多个模块按重要性分级，首屏关键模块立即渲染，非首屏的延后。
+
+我们分了 4 个优先级：P0 是首屏关键的头图、价格条、SKU 摘要和 BottomBar，必须立即渲染。P1 是首屏辅助的评分、亮点标签。P2 是非首屏的评价、问答。P3 是懒加载的推荐内容。
+
+实现方式是用一个 maxPriority 状态控制：初始只渲染 P0，首屏交互完成后提升到 P1，再延迟 100ms 提升到 P2。超出优先级的模块先渲染一个固定高度的 Placeholder 占位。
+
+配合 FlatList 虚拟化，超出视口的模块不创建 Native View。这样首屏只渲染 4 到 5 个模块而不是全部 20 多个，JS 执行时间减少 60% 以上。`,
   },
   {
     id: 3009,
@@ -249,6 +295,13 @@ useEffect(() => {
 }, []);
 
 规范：所有 store 必须实现 reset()，CR 必检异步回调是否校验上下文。`,
+    oralAnswer: `SPU/SKU 数据残留是指用户选了某个 SKU 后返回列表，再点另一个商品时页面短暂显示上一个商品的 SKU 数据。
+
+原因有三个：RN 页面栈可能复用组件实例。MobX store 是单例，切页面时没重置。异步请求返回前旧数据还在 store 里。
+
+我用了四个方案解决。第一是 Store 重置，useEffect 里根据 itemId 变化调用 skuStore.reset()。第二是请求结果校验，异步数据回来后检查当前 itemId 是不是发请求时的那个，不是就丢弃。第三是组件 key 绑定 itemId，key 变了 React 会卸载重建组件。第四是清理所有 Timer 和 Observer。
+
+最后我们定了规范：所有 store 必须实现 reset 方法，Code Review 必检异步回调是否校验上下文。`,
   },
   {
     id: 3010,
@@ -282,6 +335,13 @@ App启动 -> 加载Common Bundle -> 用户进入页面 -> 按需加载Business B
 - 热更新包从 5MB -> 200KB-500KB
 - 支持按页面粒度灰度
 - 团队可并行开发不同页面 Bundle`,
+    oralAnswer: `MRN 多 Bundle 架构分两层。
+
+Common Bundle 是基础包，大概 2 到 3MB，包含 React/RN 框架、公共组件、工具函数和网络层，随 App 发版，不频繁更新。Business Bundle 是业务包，每个页面一个，1 到 2MB，支持独立热更新。
+
+加载流程是 App 启动时加载 Common Bundle，用户进入具体页面时按需加载对应的 Business Bundle。依赖共享通过 Metro 构建配置实现：Common Bundle 中的模块用固定 moduleId，Business Bundle 引用时用相同 ID 不重复打包，运行时通过全局 require 从 Common Bundle 取模块。
+
+版本管理方面 Business Bundle 声明最低 Common Bundle 版本，构建时检测重复打包并告警。效果是热更新包从 5MB 降到 200 到 500KB，支持按页面粒度灰度，团队可以并行开发不同页面。`,
   },
   {
     id: 3011,
@@ -315,6 +375,11 @@ onTouchMove -> 计算 dx 和 dy
 4. TabCapsule 布局：
 - absolute 定位 + z-index 控制
 - pointer-events 控制点击穿透区域`,
+    oralAnswer: `小程序 Skyline 渲染引擎里视频加图集多 Tab 的手势冲突是个比较棘手的问题。
+
+场景是详情页头图区域有视频和图集两个 Tab 可以左右滑动切换，但页面本身是纵向滚动的。Skyline 中这两个方向的手势会互相抢夺。和 MRN 不一样，MRN 有 Gesture Handler 统一管理手势自动协调方向，Skyline 的事件系统不同需要手动处理。
+
+解决方案是在 touchStart 记录起点，touchMove 里计算 dx 和 dy，如果横向位移大于纵向就阻止冒泡交给 Swiper 处理横滑，反之就不阻止让页面正常滚动。视频是原生组件层级默认最高，切到图集 Tab 时用 wx:if 条件渲染销毁 video 而不是 hidden。Tab 切换动画用 Skyline 的 worklet 在 UI 线程跟手。`,
   },
   {
     id: 3012,
@@ -346,6 +411,11 @@ RN: onLayout获取位置 + ScrollView.onScroll 计算可见性
 
 5. 重复曝光：TabBar切换回来重复触发
    修复：维护已曝光Set去重`,
+    oralAnswer: `前端埋点在 Web 端用 IntersectionObserver 监听元素进入视口，RN 端用 onLayout 获取位置加 ScrollView.onScroll 计算可见性。
+
+有效曝光有四个标准：元素面积大于 50% 进入可视区域，停留超过 500ms 防止快速滑过，同一页面生命周期只报一次，数据必须完整包含 moduleKey 和 itemId。
+
+我们遇到的曝光时机异常有五类。过早曝光——数据还没到就曝光了 loading 态，修复方案是数据加载加渲染完成后才启动监听。MRNBox 快照曝光——快照阶段不该算有效曝光，修复是标记快照态真实渲染后才上报。折叠内容曝光——购买须知折叠态不应曝光内部内容。页面切换残留——页面已切走但 timer 还在跑，修复是 useEffect return 清理 observer。重复曝光——Tab 切回来重复触发，用已曝光 Set 去重。`,
   },
   {
     id: 3013,
@@ -382,6 +452,11 @@ Android: 低端机降级为半透明遮罩
 小程序: 用预处理模糊图替代
 
 效果：首屏图片加载快40%，带宽节省65%`,
+    oralAnswer: `RN 图片优化我做了六个方面。
+
+第一是优先级队列，首屏图片设 high 优先级并发加载，非首屏设 low 排队等待，Native 图片库支持优先级调度。第二是图片染色 tintColor，一张白色图标通过 tintColor 属性复用多种颜色，减少图片资源数量和包体积。第三是 CDN 裁剪加 WebP，URL 后面拼宽度和 format=webp 参数，带宽能省 60% 到 80%。第四是渐进式加载，先加载 1KB 模糊缩略图再加载高清图，用户感知更快。第五是预加载，列表页提前 prefetch 详情页首图。第六是高斯模糊分端处理，iOS 用原生 blurView 性能好，Android 低端机降级为半透明遮罩，小程序用预处理模糊图。
+
+最终效果首屏图片加载快了 40%，带宽节省 65%。`,
   },
   {
     id: 3014,
@@ -426,6 +501,11 @@ emitter.addListener('onLocationChange', (data) => { ... });
 - 单据位置采集：开单时获取经纬度附加到订单
 - 员工打卡签到：结合地理围栏判断是否在店
 - 地图展示：直接用 react-native-maps 封装`,
+    oralAnswer: `接入原生模块的完整流程分四步。
+
+第一步 Native 侧实现模块。iOS 用 Swift 或 ObjC 创建一个继承 RCTEventEmitter 的类，用 @objc 标注方法。Android 用 Kotlin 继承 ReactContextBaseJavaModule，用 @ReactMethod 标注。第二步注册到 RN，iOS 在 Bridge 模块注册表中声明，Android 在 ReactPackage 中添加。第三步 JS 侧调用，通过 NativeModules 拿到模块引用，直接 await 调用方法就行，返回 Promise。第四步如果需要持续监听事件，用 NativeEventEmitter 创建 emitter 然后 addListener。
+
+建盛材项目中单据位置采集就是这么做的：开单时调用高德定位获取经纬度附加到订单。员工打卡签到结合地理围栏判断是否在店。地图展示直接用 react-native-maps 封装。`,
   },
   {
     id: 3015,
@@ -462,6 +542,15 @@ emitter.addListener('onLocationChange', (data) => { ... });
 效果：
 - 客户活跃度提高 30%
 - 从想文案到发布：原来30min -> 现在3min`,
+    oralAnswer: `AI 营销助手的技术架构是：用户输入关键词，后端调大模型生成文案，前端展示编辑，然后发布到平台。
+
+文案生成这块，前端传入关键词、行业、目标平台和语气风格，后端拼 Prompt 模板调 LLM API，用 SSE 流式返回前端逐字展示，用户体验更好。
+
+多平台适配方面，小红书要标题加正文加标签格式，公众号要 HTML 富文本，朋友圈是纯文本加图片，短视频脚本是分镜头加台词。
+
+一键发布根据平台不同方案也不同：小红书通过 DeepLink 唤起 App 预填内容，公众号调官方 API 创建草稿，朋友圈是复制到剪贴板引导用户粘贴。
+
+效果是客户活跃度提高 30%，从想文案到发布原来要 30 分钟现在 3 分钟搞定。`,
   },
   {
     id: 3016,
@@ -511,6 +600,13 @@ const TrackView = ({ trackId, children }) => {
 建盛材实践：
 - 通过行为数据精准定位用户画像
 - 配合 APP 广告精准引导，销售成单率提高 20%`,
+    oralAnswer: `埋点体系分三层：数据采集层收集原始事件，数据处理层格式化补充公参去重，数据上报层批量上报加重试加离线缓存。
+
+不侵入业务代码的方案有三种。第一种是声明式埋点，通过 data-track 属性配置在组件上，HOC 自动处理曝光和点击上报。第二种是 AOP 方式，统一拦截路由跳转自动 PV 埋点，拦截按钮点击自动点击埋点。第三种是自动化埋点 SDK，封装 TrackView 组件内部用 useExposure 自动处理曝光。
+
+公参自动补充包括设备信息、用户信息、页面信息和时间戳。上报策略分三档：关键转化事件实时上报，普通事件攒 10 条或 5 秒批量上报，无网时本地缓存恢复后补报。
+
+建盛材项目通过行为数据精准定位用户画像，配合 App 广告精准引导销售成单率提高了 20%。`,
   },
   {
     id: 3017,
@@ -547,6 +643,15 @@ const formattedPrice = useMemo(() => formatPrice(rawPrice, currency), [rawPrice,
 const handleSkuChange = useCallback((skuId) => {
     store.selectSku(skuId);
 }, []);`,
+    oralAnswer: `useMemo 缓存计算结果，useCallback 缓存函数引用。其实 useCallback(fn, deps) 等价于 useMemo(() => fn, deps)。
+
+该用的场景有三个：昂贵的计算比如大列表过滤排序用 useMemo。传给 React.memo 子组件的 props 用 useCallback 保持引用稳定。作为其他 Hook 依赖项的值或函数需要缓存。
+
+不该用的场景：简单计算比如 a+b，缓存的开销比重新计算还大。不传给子组件的内部函数不需要 useCallback。每次渲染都变化的依赖，缓存总是失效没意义。
+
+过度使用的代价是额外内存占用、代码可读性下降和 GC 压力增大。
+
+项目中我们 MRN 模块的数据格式化用 useMemo 避免每次 render 重新解析，传给子组件的回调用 useCallback，比如 handleSkuChange。`,
   },
   {
     id: 3018,
@@ -582,6 +687,11 @@ const useStore = create((set) => ({
     balance: 0,
     addBalance: (amount) => set((s) => ({ balance: s.balance + amount })),
 }));`,
+    oralAnswer: `Zustand 的特点是极简 API、无 Provider 包裹、不可变更新、体积只有 1KB 左右，还支持 persist 等中间件。
+
+和 MobX 比，MobX 是响应式加 OOP 风格，自动依赖追踪精确更新，适合模块化 Store 和 SDUI 模式，我们美团 MRN 项目用的就是 MobX。和 Redux 比，Redux 是函数式加不可变数据，严格单向数据流，中间件生态丰富，适合超大型需要严格状态追踪的项目。
+
+红包项目选 Zustand 的原因有五个：H5 营销页面体积敏感加载速度直接影响转化率。状态逻辑不复杂就是红包状态、用户积分和活动配置。团队上手快不需要理解 Observable 和 Proxy。无 Provider 包裹多入口 H5 页面更方便。内置 persist 中间件直接对接 localStorage 做状态持久化。`,
   },
   {
     id: 3019,
@@ -616,6 +726,17 @@ const useStore = create((set) => ({
 - 建盛材 PC 后台：Vite（新项目，追求开发体验）
 - 红包营销系统：Vite（H5 项目，构建简单）
 - MRN 项目：Metro bundler（RN 专用，非 Vite/Webpack）`,
+    oralAnswer: `Vite 快的核心原因是开发环境不打包。
+
+Webpack 启动时要把所有文件打成一个 bundle 再启动 dev server，项目越大越慢。Vite 利用浏览器原生 ESM import，按需编译——浏览器请求哪个文件才编译哪个，所以启动极快。
+
+第二个原因是依赖预构建用了 esbuild，Go 语言写的编译器，把 node_modules 里的 CJS 模块转成 ESM 加合并小文件减少请求数，结果缓存只做一次。
+
+HMR 也更快，只更新修改的模块不重新打包整个 bundle，通过 import.meta.hot 精确失效。
+
+生产环境 Vite 用 Rollup 打包，tree-shaking 更好。数字对比：冷启动 Vite 约 300ms 对比 Webpack 约 10 秒，HMR Vite 约 50ms 对比 Webpack 约 2 秒。
+
+我们项目建盛材 PC 后台和红包系统用 Vite，MRN 项目用 Metro bundler 是 RN 专用的。`,
   },
   {
     id: 3024,
@@ -657,6 +778,15 @@ Redux（大型复杂项目）：
 - 模块化/RN → MobX
 - 超大型/需要严格规范 → Redux Toolkit
 - 服务端状态 → React Query / SWR（不是全局状态库）`,
+    oralAnswer: `三者各有适合场景。
+
+Zustand 我在红包营销系统用，极简 API 一个 create 搞定，无 Provider 包裹任意组件直接引用，天然支持异步不需要中间件，体积才 1KB。适合中小型项目追求简洁的场景。
+
+MobX 我在美团 MRN 和建盛材都在用，响应式加 OOP 风格，自动依赖追踪精确更新，不需要手动写 selector。class Store 加 observable 加 action 的写法和模块化 SDUI 模式配合得很好。
+
+Redux 适合大型复杂项目，函数式加不可变数据，严格单向数据流可预测性强，中间件生态丰富有 saga 和 thunk。需要时间旅行调试或严格状态追踪的场景用它。
+
+选型建议：简单状态用 Zustand，模块化或 RN 项目用 MobX，超大型需要严格规范用 Redux Toolkit。服务端状态用 React Query 或 SWR，这不是全局状态库。`,
   },
   {
     id: 3025,
@@ -699,6 +829,13 @@ const handleClick = useCallback((id) => {
 - 不是所有函数都需要 useCallback
 - 过度使用反而增加内存和 GC 压力
 - 先写正确代码，有性能问题再优化`,
+    oralAnswer: `useMemo 缓存值，useCallback 缓存函数引用，本质上 useCallback(fn, deps) 就等于 useMemo(() => fn, deps)。
+
+该用的场景：传给 React.memo 包裹的子组件的 props 保持引用稳定。作为其他 Hook 的依赖项需要稳定引用。计算量确实大的派生数据用 useMemo。列表项的事件处理器避免每次 render 新建。
+
+不该用的场景：简单计算 a+b 缓存开销大于重新计算。没传给子组件的内部函数。组件本身很轻量重渲染无所谓。依赖项频繁变化缓存总是失效。
+
+MRN 项目中模块 data transform 用 useMemo 避免每次 render 重新解析，传给 FlatList renderItem 的处理函数用 useCallback，BottomBar 按钮点击传给 memo 子组件也用 useCallback。常见误区是不是所有函数都需要 useCallback，先写正确代码有性能问题再优化。`,
   },
   {
     id: 3026,
@@ -753,6 +890,13 @@ const style = { flex: 1 };
 8. 分页加载：
 onEndReached={loadMore}
 onEndReachedThreshold={0.5}`,
+    oralAnswer: `FlatList 性能优化我总结了 8 个手段。
+
+最重要的是 keyExtractor，为每个 item 提供稳定唯一的 key。React 用 key 判断哪些 item 是新增删除还是移动的，用 index 做 key 在删除排序时会导致组件错误复用和状态串扰。
+
+第二是 getItemLayout，如果所有 item 等高，直接提供高度计算函数跳过 onLayout 动态测量，滚动性能提升明显。第三是调整 windowSize，默认 21 前后各渲染 10 屏，减小可降低内存但滚动快时可能白屏。第四是 maxToRenderPerBatch 控制每批渲染数量。第五是 removeClippedSubviews 在 Android 上移除视口外的 View。第六是用 React.memo 包裹 item 组件配合 useCallback 的事件处理器。第七是避免内联函数和对象，提取到外部常量。第八是分页加载 onEndReached。
+
+项目中详情页长列表和 SKU 选择列表都用了这些优化。`,
   },
   {
     id: 3027,
@@ -796,6 +940,13 @@ BFF 接口缓存策略（美团项目）：
 注意：
 - 移动端网络不稳定，缓存策略更激进
 - 但要确保数据新鲜度（SWR 模式）`,
+    oralAnswer: `HTTP 缓存分强缓存和协商缓存两种。
+
+强缓存不发请求直接用本地缓存。通过 Cache-Control: max-age 设置过期时间，命中时状态码 200 from cache。协商缓存会发请求问服务器资源有没有变。通过 ETag/If-None-Match 或 Last-Modified/If-Modified-Since 验证，没变返回 304 用缓存，变了返回 200 加新数据。
+
+我们项目 BFF 接口缓存策略分四层。客户端缓存 firstScreenBffCache 把首屏数据存本地，下次秒开后台更新。BFF 服务端热门商品数据 Redis 缓存 TTL 60 秒降低微服务压力。CDN 缓存静态资源图片 JS CSS 强缓存一年，文件名带 hash 更新即失效。价格库存和交易接口不缓存保证实时性。
+
+移动端网络不稳定缓存策略会更激进，但用 SWR 模式确保数据新鲜度——先展示缓存再后台更新。`,
   },
   {
     id: 3020,
@@ -848,6 +999,11 @@ ref.current.setNativeProps({ style: { opacity: 0.5 } });
 - 埋点数据本地缓存，批量上报（1 分钟一次）
 - 图片加载队列化，首屏优先
 - 效果：Bridge 消息数减少 70%，首屏通信耗时减少 45%`,
+    oralAnswer: `Bridge 通信瓶颈有四个来源：每次通信都要 JSON.stringify 加 JSON.parse 做序列化。消息是异步排队处理有延迟。单次消息过大会阻塞队列。高频通信比如动画手势每帧都跨 Bridge 导致掉帧。
+
+优化手段我做了六个方面。第一减少通信次数，循环中逐个调 Native 改成批量传递，一次代替 N 次。第二数据精简，只传必要字段不传完整对象。第三用 JSI 替代 Bridge，新架构下直接 C++ 调用无序列化，特别是动画用 Reanimated worklet 在 UI 线程执行。第四减少不必要的 re-render，每次 re-render 都可能触发 Native View 更新。第五图片加载并发控制，限制同时加载数量避免请求堆积。第六是 setNativeProps 直接修改 Native View 属性绕过 React 渲染，适合高频动画。
+
+实际效果：Bridge 消息数减少 70%，首屏通信耗时减少 45%。`,
   },
   {
     id: 3021,
@@ -898,6 +1054,17 @@ ref.current.setNativeProps({ style: { opacity: 0.5 } });
    - 根因：异步竞态未处理
    - 改进：所有 SKU 相关请求统一加竞态保护
    - 规范：CR checklist 新增「异步请求竞态检查」`,
+    oralAnswer: `我分享一个真实的线上 Bug：SKU 切换后价格显示错误。
+
+发现阶段：线上监控报价格模块 JS Error 飙升，用户反馈切 SKU 后价格没变或显示 NaN，影响约 5% 用户。
+
+排查过程：先看监控，错误是 Cannot read property price of undefined，堆栈定位到 priceBar 模块。然后复现，发现快速连续切换 SKU 能触发，慢速切换没问题。定位根因是竞态条件——快速切换时先请求 A 再请求 B，但响应 B 先回来渲染了正确价格，响应 A 后到把价格覆盖回去了，UI 显示 SKU-B 选中但价格是 A 的。
+
+修复方案：请求时递增 requestId，响应回来后检查 requestId 是否还是最新的，过期就丢弃。
+
+验证：本地模拟慢网络加快速切换确认不再复现，灰度 5% 到 100%，Error 降为 0。
+
+复盘：根因是异步竞态未处理，改进是所有 SKU 相关请求统一加竞态保护，CR checklist 新增异步请求竞态检查项。`,
   },
   {
     id: 3022,
@@ -955,6 +1122,11 @@ store.visitHistory.push(newData); // 内存持续增长
 - 图片内存缓存限制 100MB
 - 长列表使用 FlatList（自动回收）
 - 定期跑 Instruments 检查，作为发版门禁`,
+    oralAnswer: `RN 内存泄漏检测工具方面，iOS 用 Xcode Instruments 的 Allocations 和 Leaks，Android 用 Android Studio 的 Memory Profiler 和 Heap Dump，JS 侧用 Chrome DevTools Memory 对比 snapshot。
+
+常见泄漏场景我遇到过五种。第一是未清理的定时器和事件监听器，useEffect 里创建了 setInterval 或 eventBus 订阅忘记 return cleanup。第二是闭包引用过期数据，handler 闭包持有整个组件作用域，组件卸载后如果 handler 没移除内存无法回收。第三是全局 Store 无限增长，每次进页面 push 数据从不清理。第四是图片缓存过大，大量高清图在内存中需要设上限和 LRU 淘汰。第五是 Native 模块未释放，创建的动画手势对象页面卸载时没调 destroy。
+
+我们的实践规范是：所有 observer 和 timer 必须在 useEffect return 中清理，Store 数据绑定页面生命周期离开时 reset，图片内存缓存限制 100MB，长列表用 FlatList 自动回收，定期跑 Instruments 检查作为发版门禁。`,
   },
   {
     id: 3023,
@@ -1009,5 +1181,16 @@ setState(newState);
 - 详情页头图下拉放大：Reanimated
 - BottomBar 弹出动画：Animated（简单 translateY）
 - SKU 面板展开：LayoutAnimation（简单场景够用）`,
+    oralAnswer: `RN 动画有三种实现方式。
+
+第一种是官方 Animated API，在 JS 线程计算动画值。设置 useNativeDriver: true 可以把 transform 和 opacity 的动画放到 Native 线程执行。但局限是只有这两类属性支持 NativeDriver，width、height 这些布局属性还是在 JS 线程算，JS 繁忙时动画会卡。
+
+第二种是 Reanimated 2+，社区方案美团也在用。核心是动画逻辑编译为 worklet 直接在 UI 线程执行，完全不受 JS 线程阻塞。支持所有样式属性动画，手势跟手丝滑 60fps，还支持弹性衰减等物理动画。
+
+第三种是 LayoutAnimation，最简单，调一下 configureNext 下次 setState 引起的布局变化自动加动画。
+
+必须用 Reanimated 的场景：手势跟手动画比如拖拽下拉刷新、JS 线程繁忙时的动画比如列表滚动加头部缩放、复杂交互动画比如侧滑删除卡片翻转。
+
+我们项目详情页头图下拉放大用 Reanimated，BottomBar 简单弹出用 Animated，SKU 面板展开用 LayoutAnimation。`,
   },
 ];
