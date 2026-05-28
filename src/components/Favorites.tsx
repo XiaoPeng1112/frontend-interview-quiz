@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { questions } from '../data/questions';
 import { StarFilled, CheckCircleFilled, ExclamationCircleFilled } from '@ant-design/icons';
 import QuestionCard from './QuestionCard';
+import Changelog from './Changelog';
 import './Favorites.css';
 
 type MarkType = 'favorite' | 'mastered' | 'weak';
@@ -18,6 +19,7 @@ const PAGE_SIZE = 10;
 const Favorites: React.FC<Props> = ({ favorites, marks, onToggleFavorite, onSetMark }) => {
   const [activeFilter, setActiveFilter] = useState<'favorite' | 'mastered' | 'weak' | 'all'>('all');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [showChangelog, setShowChangelog] = useState(false);
   const loaderRef = useRef<HTMLDivElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
   const [stickyTop, setStickyTop] = useState(0);
@@ -83,6 +85,10 @@ const Favorites: React.FC<Props> = ({ favorites, marks, onToggleFavorite, onSetM
   }, []);
 
   const hasMore = visibleCount < filteredQuestions.length;
+
+  if (showChangelog) {
+    return <Changelog onBack={() => setShowChangelog(false)} />;
+  }
 
   return (
     <div className="favorites-page">
@@ -152,6 +158,13 @@ const Favorites: React.FC<Props> = ({ favorites, marks, onToggleFavorite, onSetM
           </div>
         </>
       )}
+
+      {/* 更新日志入口 */}
+      <div className="changelog-entrance">
+        <button className="changelog-entrance-btn" onClick={() => setShowChangelog(true)}>
+          📋 更新日志
+        </button>
+      </div>
     </div>
   );
 };

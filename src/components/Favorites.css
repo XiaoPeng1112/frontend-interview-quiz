@@ -36,23 +36,23 @@
 .favorites-filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
   padding: 0 4px;
 }
 
 .fav-filter {
-  padding: 7px 12px;
+  padding: 4px 9px;
   border: 1px solid var(--card-border);
-  border-radius: 8px;
+  border-radius: 6px;
   background: var(--card-bg);
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -116,4 +116,30 @@
 .favorites-empty .empty-hint {
   font-size: 12px;
   color: var(--text-muted);
+}
+
+/* 更新日志入口 */
+.changelog-entrance {
+  text-align: center;
+  padding: 32px 0 16px;
+  border-top: 1px solid var(--card-border);
+  margin-top: 24px;
+}
+
+.changelog-entrance-btn {
+  background: none;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.changelog-entrance-btn:hover,
+.changelog-entrance-btn:active {
+  border-color: var(--primary);
+  color: var(--primary-light);
+  background: rgba(99, 102, 241, 0.05);
 }

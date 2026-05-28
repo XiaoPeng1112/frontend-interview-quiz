@@ -25,6 +25,13 @@ Bridge：JS → JSON.stringify → Message Queue → Native Dispatch → JSON.pa
 JSI：JS → C++ HostObject.get() → Native（直接函数调用）
 
 注意：JSI 同步调用会阻塞 JS 线程，耗时操作仍需异步（通过返回 Promise）。`,
+    oralAnswer: `JSI 全称 JavaScript Interface，本质是一层 C++ 抽象层。它让 JS 引擎——不管是 Hermes 还是 JSC——通过统一接口暴露 HostObject 给 JS 层。
+
+核心原理是 JS 对象可以直接持有 C++ 对象的引用，也就是一个 shared_ptr。当 JS 调用一个原生方法时，实际上是直接走 C++ 的虚函数分派，不再需要像旧 Bridge 那样做 JSON 序列化和反序列化。旧 Bridge 的流程是 JS 把参数 stringify 成 JSON，放到消息队列，Native 端再 parse 回来处理，单次调用就有大约 5ms 的延迟。JSI 直接函数调用，延迟降到 0.1ms 以下。
+
+另外 JSI 支持同步调用，JS 可以同步拿到 Native 的返回值，这在旧架构下是不可能的。还支持内存共享，比如传递 ArrayBuffer 的指针实现零拷贝。
+
+性能提升方面，Meta 官方数据显示启动时间减少约 15%，高频通信场景帧率提升 30% 到 60%。不过要注意，同步调用会阻塞 JS 线程，耗时操作还是要通过返回 Promise 来做异步处理。`,
   },
   {
     id: 1102,
@@ -58,6 +65,15 @@ JSI：JS → C++ HostObject.get() → Native（直接函数调用）
 - 多 Bundle 共享同一个 Fabric 渲染器实例
 - Shadow Tree 的不可变性让多 Bundle 并发渲染成为可能
 - 但需注意 Surface 之间的 z-index 和事件分发隔离`,
+    oralAnswer: `Fabric 是新架构的渲染器，它的渲染管线分为三个阶段。
+
+第一阶段是 Render Phase，在 JS 线程执行。React reconciler 产出 Element Tree 后，通过 JSI 同步创建 C++ 的 Shadow Node，注意这里是同步的，不再像旧架构那样异步发消息。这些 Shadow Node 组成的 Shadow Tree 是不可变数据结构。
+
+第二阶段是 Commit Phase，在后台线程执行。Yoga 引擎对 Shadow Tree 做布局计算，把 Flexbox 转换成绝对坐标，然后对比新旧 Shadow Tree 生成 diff，产出一组 Mutation 指令。
+
+第三阶段是 Mount Phase，在 UI 线程执行这些 Mutation 指令，创建、更新、删除原生 View。
+
+跟旧的 UIManager 相比，核心区别有几个：一是同步创建 Shadow Node，所以能支持 React 18 的并发特性；二是 Shadow Tree 不可变，支持多次 render 比较和中断恢复；三是 C++ 层统一实现，iOS 和 Android 不再各搞一套；四是支持优先级中断，旧架构一旦开始渲染就不能打断；还有自动的 View Flattening 优化视图层级。`,
   },
   {
     id: 1103,
@@ -95,6 +111,13 @@ MRN 多 Bundle 场景特殊考虑：
 4. 性能监控：
 - 记录各模块首次加载耗时，识别启动阻塞模块
 - 对高频调用模块进行预加载优化`,
+    oralAnswer: `TurboModules 的懒加载机制分为注册和加载两个阶段。注册阶段，编译时 CodeGen 根据 Spec 文件生成类型安全的 C++ 接口，运行时只向 TurboModuleManager 注册一个 Provider 工厂函数，不会真正实例化模块。
+
+加载是在 JS 层第一次 require 这个模块时才触发的。具体是通过 JSI 调用 global.__turboModuleProxy，TurboModuleManager 找到对应的 Provider，这时才实例化 Native 模块。实例化之后会缓存起来，后续调用直接返回。
+
+跟旧架构对比，旧架构启动时会遍历所有标记了 @ReactModule 注解的模块全部初始化，不管用不用都加载，所以启动慢。TurboModules 按需加载后，启动性能能提升 30% 到 50%。
+
+在 MRN 多 Bundle 场景下有些特殊考虑：公共模块比如网络、存储要多 Bundle 共享同一实例，业务特有模块要按 Bundle 隔离。Bundle 卸载时要清理它注册的私有模块，共享模块用引用计数管理。还有版本兼容问题，不同 Bundle 可能依赖同一模块不同版本，需要做版本协商或 API 向下兼容。`,
   },
   {
     id: 1104,
@@ -138,6 +161,15 @@ JS Source → Lexer/Parser → AST → IR（中间表示）→ 优化 Pass → B
 - 基础包和业务包分别编译为独立 .hbc
 - 共享字符串表避免重复
 - 业务包按需 mmap，卸载时 munmap 释放内存`,
+    oralAnswer: `Hermes 的编译执行分为构建时和运行时两个阶段。
+
+构建时做 AOT 编译：JS 源码经过词法分析、语法分析生成 AST，再转为中间表示 IR，跑一系列优化 Pass（常量折叠、死代码消除、内联等），最终生成紧凑的 .hbc 字节码文件。这个文件里包含字节码、字符串表和函数表。
+
+运行时是解释执行：通过 mmap 加载 .hbc 文件，好处是惰性加载，操作系统只读取实际访问到的内存页。解释器逐条执行字节码，不做 JIT 编译来避免 iOS 政策限制。GC 采用分代策略，Young Gen 用复制式 GC，Old Gen 用标记清除加压缩。
+
+还有一个函数惰性编译机制，函数体只有在首次被调用时才完整编译，减少启动时的内存开销。
+
+针对 RN 的优化策略包括：Bundle 体积方面用 minify 加字节码压缩能比 JSC 小 30-50%；启动优化方面分析函数热度调整编译顺序，预热首屏关键路径函数；GC 方面设合理的触发阈值避免首屏期间暂停；多 Bundle 场景下基础包和业务包分别编译为独立 .hbc，共享字符串表避免重复。`,
   },
   {
     id: 1105,
@@ -179,6 +211,15 @@ JS Source → Lexer/Parser → AST → IR（中间表示）→ 优化 Pass → B
 - Bundle 加载失败 → H5 降级页
 - JS 异常超阈值 → 自动回滚到上一版本
 - 网络不可用 → 使用内置兜底包`,
+    oralAnswer: `MRN 多 Bundle 架构的核心思想是把 RN 应用拆成「基础包加 N 个业务包」，各业务线可以独立开发、独立发布、按需加载。
+
+基础包包含 React 和 RN 核心代码、公共组件和工具库，跟随 App 发版内置，压缩后通常 300 到 500KB。业务包是各业务线自己的代码，通过平台下发支持热更新，体积通常只有 50 到 200KB。
+
+加载流程是这样的：App 启动时预加载基础包，创建 JS Runtime 并执行基础包代码。当用户进入某个业务页面时，先检查本地有没有缓存该业务包，没有就下载并做签名校验和完整性校验，然后在已有 Runtime 上执行业务包代码，渲染对应的 RN Surface。
+
+多 Bundle 间通信有几种方式：事件总线做跨 Bundle 的发布订阅；通过基础包提供全局 Store 共享状态比如用户信息、登录态；URL Schema 统一路由协议做页面跳转；Native 层做消息中转。
+
+依赖管理方面，公共依赖提升到基础包，业务包构建时排除基础包已有模块。还要有降级策略：Bundle 加载失败走 H5 降级，JS 异常超阈值自动回滚。`,
   },
   {
     id: 1106,
@@ -236,6 +277,11 @@ JS Source → Lexer/Parser → AST → IR（中间表示）→ 优化 Pass → B
 - TTI（Time to Interactive）：从点击到可交互
 - FMP（First Meaningful Paint）：首次有意义渲染
 - Bundle 执行时长、JS→Native 通信次数`,
+    oralAnswer: `首屏渲染的完整链路可以分为五个阶段。第一是 Native 容器初始化，创建 Bridge 或 ReactInstance、初始化 Hermes、注册原生模块，大约 100 到 200ms。第二是 JS Bundle 加载，从磁盘或网络加载并执行字节码，大约 200 到 500ms。第三是 JS 业务执行，React reconciliation 生成组件树，大约 100 到 300ms。第四是布局计算，Yoga 排版，50 到 100ms。第五是原生渲染，创建 View 并绘制首帧。
+
+从 2 秒优化到 1 秒以内，我是分阶段做的。容器预创建省了大约 200ms——App 启动时就预创建 RN 容器池，进入业务时直接复用。Bundle 加载优化省了约 300ms——基础包预加载，业务包预下载加本地缓存，用增量更新减小下载体积。JS 执行优化省了约 200ms——首屏数据由 Native 并行预请求然后注入 JS，非首屏模块延迟初始化。渲染优化省了约 100ms——减少 View 嵌套层级，首屏图片预加载，用骨架屏覆盖白屏期。
+
+监控指标主要看 TTI、FMP、Bundle 执行时长和 JS 到 Native 的通信次数。`,
   },
   {
     id: 1107,
@@ -280,6 +326,11 @@ JS Source → Lexer/Parser → AST → IR（中间表示）→ 优化 Pass → B
 - 业务包准入标准：体积限制、性能指标门槛
 - 容器能力标准化：API 文档 + 版本管理
 - 故障隔离：单个业务包 crash 不影响其他业务`,
+    oralAnswer: `容器化架构的思路类似 Docker，把 RN 运行时环境封装成标准容器，业务代码像插件一样运行在容器内。架构分四层：最下面是宿主层，也就是 Native App 提供原生能力；然后是容器层，包含 RN Runtime 和 Modules；再上是框架层，基础包和公共组件 SDK；最上是业务层，各业务 Bundle 独立开发发布。
+
+隔离机制有三个维度。JS 执行隔离有几种方案：多 Context 是同一 Runtime 不同全局对象，轻量但隔离不彻底；多 Runtime 是独立 Hermes 实例，隔离彻底但内存开销大；MRN 选择的是单 Runtime 加模块作用域隔离的折中方案。UI 渲染隔离通过每个业务 Bundle 对应独立的 Surface，互不影响。状态隔离则是业务私有状态闭包管理，共享状态通过容器提供的 Context API 访问。
+
+共享机制包括：网络、存储、路由、埋点这些公共模块由基础包提供；设计系统组件库内置在基础包；Native 能力统一注册。关键设计决策包括基础包版本管理、业务包准入标准（体积和性能指标门槛），以及故障隔离——单个业务包崩溃不能影响其他业务。`,
   },
   {
     id: 1108,
@@ -338,6 +389,13 @@ JS Source → Lexer/Parser → AST → IR（中间表示）→ 优化 Pass → B
 - 图片缓存 LRU + 最大容量限制
 - 列表虚拟化 + 离屏回收
 - 多 Bundle 卸载时完整清理（移除 Surface + 清理全局注册）`,
+    oralAnswer: `RN 的内存分布在三个地方：JS Heap 由 Hermes 管理，存放 JS 对象、闭包、组件实例；Native Heap 存放原生 View、图片缓存、Native Module 状态；还有 C++ 层的 Shadow Tree 布局节点。
+
+常见的内存泄漏场景有这些：事件监听没清理，比如 DeviceEventEmitter 的 listener 没在 unmount 时 remove；定时器泄漏，setInterval 没 clear；闭包持有大对象，异步回调引用已卸载组件的 state setter；图片缓存失控没设上限；导航栏堆积，页面只 push 不 pop 历史页面组件不卸载；Native Module 持有 JS callback 引用没释放。
+
+排查工具方面，Hermes 可以导出内存快照用 Chrome DevTools Memory Tab 分析。Native 层 iOS 用 Instruments 的 Allocations 和 Leaks，Android 用 Studio Profiler。还可以做自动化监控，进入退出页面后对比内存是否回落。
+
+优化策略包括：组件卸载时严格清理定时器、监听、动画、请求；图片缓存设 LRU 和最大容量；列表用虚拟化加离屏回收；多 Bundle 卸载时要完整清理 Surface 和全局注册。`,
   },
   {
     id: 1109,
@@ -392,6 +450,13 @@ JS Source → Lexer/Parser → AST → IR（中间表示）→ 优化 Pass → B
 工具选型：
 - Sentry（JS 异常）+ 自建平台（性能/灰度控制）
 - 美团内部：CAT（监控）+ Rhino（发布平台）`,
+    oralAnswer: `灰度发布体系我设计了几个核心环节。首先是发布通道，分为 dev、staging、canary 和 production 四个环境，版本号用 appVersion 加 bundleVersion 加 patch 来管理。
+
+灰度策略支持多维度：按用户 ID 哈希取模逐步放量，从 1% 到 5% 到 20% 再到全量；也可以按设备分桶、按地域先小城市后大城市；再加上内部白名单优先测试。服务端下发灰度规则和 Bundle 地址，客户端本地判断是否命中，并且支持 5 分钟内紧急全量回退。
+
+异常监控体系包括几层：JS 异常通过 ErrorUtils.setGlobalHandler 捕获全局未处理异常，Error Boundary 做组件树崩溃隔离，还有 Promise rejection 监听。上报内容包含错误堆栈（用 Source Map 还原）、用户设备信息、Bundle 版本、异常前的用户行为面包屑。
+
+告警和熔断机制：JS Error Rate 超过 1% 自动停止灰度，Crash Rate 超 0.5% 自动回滚，TTI P99 超 3 秒通知开发者。工具上 JS 异常用 Sentry，性能和灰度控制用内部平台。`,
   },
   {
     id: 1110,
@@ -447,5 +512,14 @@ Compose Multiplatform：
 - 热更新是核心诉求（高频迭代）
 - 已有完善的 MRN 基建
 - npm 生态可复用大量 Web 工具链`,
+    oralAnswer: `跨端方案对比我主要从渲染方式、热更新、生态和团队背景几个维度来看。
+
+React Native 渲染真正的原生组件，用 TypeScript 开发，天然支持热更新，npm 生态最丰富，前端开发者上手快。缺点是涉及大量 Native 交互时复杂度高。
+
+Flutter 用 Skia 自绘引擎不使用原生组件，Dart 语言编译为 ARM 代码性能接近原生，但因为 Dart AOT 官方不支持热更新，而且 Dart 人才少、包体积较大。
+
+KMM 只共享逻辑层，UI 还是各平台原生开发，适合 UI 差异大但业务逻辑重合的场景。Compose Multiplatform 类似 Flutter 用 Skia 渲染，但基于 Kotlin 生态，iOS 支持还在完善中。
+
+选型主要看三点：团队背景——前端团队选 RN，Android/Kotlin 团队选 KMM，无历史包袱可以选 Flutter；业务需求——需要热更新则 RN 是必选，高动画游戏化选 Flutter；美团场景选 RN 是因为前端团队规模大、热更新是核心诉求、MRN 基建已经很完善。`,
   },
 ];

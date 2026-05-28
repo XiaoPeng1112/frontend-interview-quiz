@@ -23,6 +23,15 @@ Metro（RN 专用）：
 - 不面向浏览器，输出单个 Bundle
 
 选择：Web 项目用 Vite，RN 用 Metro，老项目可能还在 Webpack。`,
+    oralAnswer: `这三个打包器定位不同。
+
+Webpack 是基于 Bundle 的打包器，生态最丰富，配置灵活但复杂。缺点是开发时全量打包，大项目 HMR 比较慢。
+
+Vite 是新一代的构建工具，开发时利用浏览器原生 ESM，按需编译，启动非常快。生产构建用 Rollup，配置简单，插件兼容 Rollup 生态。
+
+Metro 是 RN 专用打包器，支持平台文件（.ios/.android）、增量编译、拆包等 RN 特有功能。不面向浏览器，输出单个 Bundle。
+
+选择上：Web 新项目用 Vite，RN 用 Metro，老项目可能还在 Webpack。`,
   },
   {
     id: 1002,
@@ -49,6 +58,13 @@ RN 特有流程：
 - 环境隔离：dev/staging/production
 - 版本管理：Semantic Versioning
 - 回滚机制：快速回退到上一版本`,
+    oralAnswer: `CI/CD 在前端的实践分两部分。
+
+CI 持续集成：代码提交后自动触发 lint、类型检查、单元测试；PR 时自动跑测试、代码审查、构建验证。工具一般用 GitHub Actions、GitLab CI 或 Jenkins。
+
+CD 持续部署：自动构建后部署到不同环境。Web 项目用 Vercel、Netlify 或对象存储 + CDN。RN 应用用 Fastlane 自动化 iOS/Android 发布流程，还有 CodePush 做 JS Bundle 的热更新。
+
+最佳实践包括：分支策略用 main/develop/feature、环境隔离 dev/staging/production、语义化版本管理、以及快速回滚机制。`,
   },
   {
     id: 1003,
@@ -77,6 +93,15 @@ RN 特有：
 - Jest + @testing-library/react-native：组件测试
 
 策略：核心路径 E2E 覆盖 + 复杂逻辑单元测试 + 关键组件交互测试。`,
+    oralAnswer: `前端测试遵循测试金字塔。
+
+底层是单元测试，数量最多，用 Jest 或 Vitest，测纯函数、hooks、工具方法，目标覆盖率 80% 以上。
+
+中层是组件测试，用 React Testing Library，测组件渲染和交互，关注用户行为而不是实现细节。
+
+顶层是 E2E 测试，数量少但覆盖核心流程。Web 用 Playwright 或 Cypress，RN 用 Detox 或 Maestro。
+
+整体策略是：核心用户路径 E2E 保障 + 复杂业务逻辑单元测试 + 关键组件交互测试。`,
   },
   {
     id: 1004,
@@ -108,6 +133,13 @@ RN + Web 共享：
 - 共享业务逻辑层（hooks、store、API）
 - UI 层各端独立实现
 - 使用 react-native-web 最大化复用`,
+    oralAnswer: `Monorepo 就是多个项目或包在同一个仓库中管理。
+
+适用场景有：多端共享代码（比如 RN + Web + 小程序）、组件库 + 应用 + 工具库统一管理、微前端多应用等。
+
+主流工具链有 pnpm workspace（快速安装、严格隔离）、Turborepo（增量构建、远程缓存）、Nx（全功能构建系统）、Lerna（经典方案，侧重发包管理）。
+
+对于 RN + Web 共享，一般的做法是共享业务逻辑层（hooks、store、API），UI 层各端独立实现，也可以用 react-native-web 最大化复用。`,
   },
   {
     id: 1005,
@@ -135,5 +167,12 @@ RN + Web 共享：
 - 性能：预加载子应用、共享依赖
 
 与 RN 的类比：RN 拆包 + 多 Bundle 动态加载本质类似微前端思想。`,
+    oralAnswer: `微前端是把前端应用拆分为独立开发、独立部署的子应用，运行时集成到主应用中。
+
+适用场景包括：大团队多业务线需要独立交付，老系统渐进式重构新旧技术栈共存，跨团队协作需要技术隔离。
+
+主流方案有 qiankun（基于 single-spa，JS 沙箱 + CSS 隔离）、Micro App（WebComponent 方式）、Module Federation（Webpack 5 运行时模块共享）、iframe（天然隔离但通信和性能差）。
+
+核心要解决的问题有：样式隔离、JS 沙箱（Proxy 代理 window）、路由接管、状态共享、性能优化。RN 拆包 + 多 Bundle 动态加载本质上也是微前端思想。`,
   },
 ];

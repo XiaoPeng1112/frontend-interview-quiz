@@ -1,0 +1,138 @@
+.changelog-page {
+  padding-bottom: 80px;
+}
+
+.changelog-header {
+  text-align: center;
+  padding: 20px 16px 16px;
+  position: relative;
+}
+
+.changelog-back {
+  position: absolute;
+  left: 16px;
+  top: 24px;
+  background: none;
+  border: none;
+  color: var(--primary-light);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.changelog-back:active {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.changelog-header h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.changelog-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.changelog-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 16px;
+}
+
+.changelog-entry {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.changelog-entry-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.changelog-version {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary-light);
+  background: rgba(99, 102, 241, 0.12);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.changelog-date {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.changelog-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.changelog-changes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.changelog-change-item {
+  padding-left: 12px;
+  border-left: 2px solid var(--card-border);
+}
+
+.changelog-change-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.changelog-type-tag {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.tag-feature {
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--primary-light);
+}
+
+.tag-optimize {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+.tag-fix {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+
+.changelog-change-desc {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.changelog-change-detail {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}

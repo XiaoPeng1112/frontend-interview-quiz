@@ -25,6 +25,11 @@ fetch('https://api.openai.com/v1/chat/completions', {
 - 处理超时和重试
 - 流式输出的中断与续传
 - Token 用量和费用控制`,
+    oralAnswer: `前端接入大模型 API 主要有两种方式。
+
+一种是普通的 REST API 调用，用 fetch 发 POST 请求到 OpenAI 的接口，传入 model 和 messages 参数。另一种是流式响应，设置 stream: true，使用 ReadableStream 逐步接收数据，实现打字机效果。
+
+注意事项很重要：API Key 绝对不能暴露在前端代码中，必须通过后端代理；要处理超时和重试机制；流式输出要支持中断和续传；还要注意 Token 用量和费用控制。`,
   },
   {
     id: 902,
@@ -63,6 +68,11 @@ while (true) {
 - Markdown 实时渲染（增量解析）
 - 代码块语法高亮
 - 中断请求（AbortController）`,
+    oralAnswer: `流式输出的核心技术是 SSE（Server-Sent Events）加 ReadableStream。
+
+实现流程是：发 fetch 请求时设置 stream: true，拿到 response.body 后用 getReader() 获取读取器，循环 read() 获取数据块，用 TextDecoder 解码后解析 SSE 格式的 data 行，提取 delta.content 拼接到结果中，每次拼接后更新 UI。
+
+优化方面：用 requestAnimationFrame 批量更新 DOM 避免频繁重绘；Markdown 内容要做增量解析和实时渲染；代码块需要语法高亮；要支持用 AbortController 中断请求。`,
   },
   {
     id: 903,
@@ -87,6 +97,13 @@ while (true) {
 - 文本分割：LangChain
 - Embedding：OpenAI text-embedding-3
 - 前端框架：Vercel AI SDK 简化开发`,
+    oralAnswer: `RAG 就是检索增强生成，解决大模型知识过时和幻觉的问题。原理是先从知识库检索相关文档，再把文档作为上下文交给大模型生成回答。
+
+流程是：用户提问后，将问题文本向量化，在向量数据库中检索相似内容，把检索到的文档片段拼接到 Prompt 中，再发给 LLM 生成回答。
+
+前端配合的工作包括：文件上传处理（支持 PDF/Word 等格式）、知识库管理界面、对话界面要显示引用来源支持追问、向量搜索预览展示相关片段、用户反馈机制优化检索质量。
+
+技术栈方面，向量数据库用 Pinecone 或 Milvus，文本分割用 LangChain，Embedding 用 OpenAI 的 text-embedding 模型，前端用 Vercel AI SDK 简化开发。`,
   },
   {
     id: 904,
@@ -116,6 +133,13 @@ while (true) {
 - 自动生成组件样板代码
 - 根据设计稿描述生成 UI 代码
 - 自动编写单元测试`,
+    oralAnswer: `Copilot 类工具的原理是：基于大量代码训练的 LLM（如 Codex、StarCoder），收集当前文件、打开的标签页、项目结构等上下文，构造 Prompt 发送给模型，流式返回补全建议。
+
+前端集成类似能力主要通过 Monaco Editor：注册 CompletionItemProvider，收集光标位置的上下文发给 AI API，以 inline suggestion 形式展示补全结果。还可以做代码审查集成（PR 自动 review）和自然语言转代码。
+
+相关工具有 Vercel AI SDK 统一多模型 API、LangChain.js 做链式调用、Continue 是开源的 VS Code AI 编码助手。
+
+在 RN 项目中可以自动生成组件样板代码、根据设计稿描述生成 UI 代码、自动编写单元测试。`,
   },
   {
     id: 905,
@@ -151,6 +175,13 @@ while (true) {
 - 计算资源有限
 - 首次加载模型耗时
 - 兼容性（WebGPU 仍在推广中）`,
+    oralAnswer: `本地 AI 推理的优势是隐私保护、离线可用、低延迟、省服务器成本。
+
+技术方案有几种：WebAssembly + ONNX Runtime 可以在浏览器中跑 ONNX 格式模型，支持 WebGL/WebGPU 加速；TensorFlow.js 适合图像分类、姿态检测等场景；WebLLM/MLC-LLM 可以在浏览器中跑大模型（Llama/Mistral），用 WebGPU 加速加模型量化。
+
+React Native 端可以用 TFLite、CoreML、NNAPI 做原生推理，Meta 推出的 ExecuTorch 是专门的移动端推理框架。
+
+主要挑战是模型体积需要量化蒸馏、移动端计算资源有限、首次加载模型耗时长、WebGPU 兼容性还在推广中。`,
   },
   {
     id: 906,
@@ -186,6 +217,13 @@ while (true) {
 - react-markdown：React 生态
 - @bytemd/react：字节跳动
 - Vercel AI SDK 内置流式 Markdown 支持`,
+    oralAnswer: `流式 Markdown 渲染的核心挑战是：流式输出时 Markdown 是不完整的，比如粗体标记只收到一半、代码块未闭合。
+
+解决方案是增量解析：每次收到新 chunk 后重新解析整段文本（用 markdown-it 或 marked），优化点是只重新渲染变化的部分做 diff。对未闭合的代码块临时补全闭合符号，未闭合的粗体暂不渲染。
+
+代码高亮用 highlight.js 或 Prism.js，流式输出时等代码块完整后再高亮，支持复制按钮。
+
+性能优化方面：长文本做虚拟化、用 requestAnimationFrame 批量更新、React 中用 useMemo 缓存已渲染部分、避免整段重新 parse 只处理增量。推荐库有 react-markdown 和 Vercel AI SDK 内置的流式 Markdown 支持。`,
   },
   {
     id: 907,
@@ -215,6 +253,13 @@ while (true) {
 - Vercel AI SDK（useChat + tools）
 - OpenAI Assistants API
 - 前端沙箱：iframe sandbox / Web Worker`,
+    oralAnswer: `AI Agent 就是 LLM 加上工具调用、记忆和规划能力的智能体。
+
+前端场景有：智能客服（多轮对话加工具调用查订单退款）、数据分析助手（自然语言转 SQL 和图表）、设计转代码、自动化测试等。
+
+架构是循环式的：用户输入后 LLM 决策选择工具，执行工具后观察结果，决定继续还是完成。
+
+前端实现要点：Function Calling 定义工具 schema 让模型返回调用意图；UI 上展示 Agent 的思考链（Thinking、Acting、Observing）；工具执行要有 loading 和成功失败的状态反馈；会话记忆管理要处理上下文窗口限制做摘要压缩；Agent 生成的代码要在安全沙箱中执行（iframe sandbox 或 Web Worker）。`,
   },
   {
     id: 908,
@@ -240,6 +285,11 @@ while (true) {
 - 输出验证：不直接执行 AI 返回的代码
 - 敏感信息过滤：不把用户隐私发送给 API
 - Rate Limiting：防止恶意大量调用`,
+    oralAnswer: `Prompt Engineering 在产品中的设计原则有：明确角色设定、提供充分上下文、指定输出格式（JSON/Markdown/代码）、给 Few-shot 示例、加约束条件。
+
+前端产品中的实践包括：模板化 Prompt 让用户只需填空不用写完整提示；动态上下文注入自动收集相关代码或文档；要求输出结构化 JSON 方便前端直接解析渲染；多轮优化根据用户反馈修改 Prompt；A/B 测试对比不同 Prompt 版本效果。
+
+安全方面很关键：要防 Prompt 注入（过滤用户输入中的指令）、输出验证（不直接执行 AI 返回的代码）、敏感信息过滤（不把用户隐私发给 API）、Rate Limiting 防止恶意大量调用。`,
   },
   {
     id: 909,
@@ -276,6 +326,13 @@ RN 中的应用：
 - react-native-vision-camera + 实时 AI 分析
 - expo-speech / react-native-tts
 - 端上模型实时推理（ExecuTorch）`,
+    oralAnswer: `多模态 AI 就是同时处理文本、图像、音频、视频的理解与生成。
+
+前端应用场景有：图片理解（上传截图让 AI 分析内容或生成代码）、语音交互（实时语音转文字加 AI 回复加 TTS）、视频分析（内容总结）、设计稿转代码（Vision API 识别 UI 生成 React 组件）。
+
+技术实现方面：图片用 GPT-4V/Claude 的图片输入，前端用 canvas 截图转 base64 发给 API；语音可以用浏览器原生的 Web Speech API 或更准确的 Whisper API，用 MediaRecorder 录音转 Blob；视频通过抽帧做图片分析加音轨提取做字幕。
+
+RN 中可以用 react-native-vision-camera 加实时 AI 分析、expo-speech 做语音、ExecuTorch 做端上实时推理。`,
   },
   {
     id: 910,
@@ -300,5 +357,12 @@ RN 中的应用：
 - Embedding 调用成本远低于生成式 API
 - 可以缓存已计算的向量
 - 选择合适维度（更小 = 更快更便宜）`,
+    oralAnswer: `Embedding 就是把文本、图片等非结构化数据转成高维向量，语义相似的内容在向量空间中距离更近。
+
+前端应用有：语义搜索（比关键词搜索更智能，理解用户意图）、推荐系统（用户兴趣向量和内容向量做相似度匹配）、RAG 文档问答（文档分块做 Embedding，提问时检索相关段落）、智能分类（向量聚类自动分类）。
+
+实现上：调用 Embedding API（如 OpenAI text-embedding-3-small）得到向量，存入向量数据库（Pinecone 或 Supabase pgvector），检索时计算余弦相似度。离线场景可以用 transformers.js 在浏览器中生成 Embedding。
+
+成本方面 Embedding 调用远低于生成式 API，可以缓存已计算的向量，选择合适的维度能进一步降低成本。`,
   },
 ];

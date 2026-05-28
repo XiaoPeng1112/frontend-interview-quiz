@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import { questions, categories, Question } from './data/questions';
+import { questions, categories } from './data/questions';
+import type { Question } from './data/questions';
 import CategoryFilter from './components/CategoryFilter';
 import DifficultyFilter from './components/DifficultyFilter';
 import QuestionCard from './components/QuestionCard';
@@ -8,57 +9,12 @@ import MockInterview from './components/MockInterview';
 import ReviewAnalysis from './components/ReviewAnalysis';
 import Favorites from './components/Favorites';
 import SyncPanel from './components/SyncPanel';
-import {
-  SyncData,
-  InterviewRecord,
-  loadGistId,
-  saveGistId,
-  clearGistId,
-  findExistingGist,
-  createGist,
-  readGist,
-  updateGist,
-  mergeData,
-} from './services/gistSync';
-import {
-  AuthState,
-  loadAuth,
-  logout as logoutAuth,
-  handleOAuthCallback,
-  hasOAuthCallback,
-} from './services/oauthService';
+import { useAuth } from './hooks/useAuth';
+import { useFavorites } from './hooks/useFavorites';
+import { useInterviewHistory } from './hooks/useInterviewHistory';
+import { useSync } from './hooks/useSync';
+import { useTheme } from './hooks/useTheme';
 import './App.css';
-
-type MarkType = 'favorite' | 'mastered' | 'weak';
-
-// localStorage helpers
-const STORAGE_KEY_FAV = 'interview-quiz-favorites';
-const STORAGE_KEY_MARKS = 'interview-quiz-marks';
-const STORAGE_KEY_HISTORY = 'interview-quiz-history';
-
-function loadFavorites(): Set<number> {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY_FAV);
-    if (raw) return new Set(JSON.parse(raw));
-  } catch {}
-  return new Set();
-}
-
-function loadMarks(): Record<number, MarkType> {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY_MARKS);
-    if (raw) return JSON.parse(raw);
-  } catch {}
-  return {};
-}
-
-function loadHistory(): InterviewRecord[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY_HISTORY);
-    if (raw) return JSON.parse(raw);
-  } catch {}
-  return [];
-}
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabKey>('library');
@@ -67,153 +23,46 @@ const App: React.FC = () => {
   const [searchText, setSearchText] = useState('');
   const [stickyTop, setStickyTop] = useState(0);
   const stickyFilterRef = useRef<HTMLDivElement>(null);
+  const loaderRef = useRef<HTMLDivElement>(null);
+  const PAGE_SIZE = 20;
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-  // 核心数据状态
-  const [favorites, setFavorites] = useState<Set<number>>(loadFavorites);
-  const [marks, setMarks] = useState<Record<number, MarkType>>(loadMarks);
-  const [interviewHistory, setInterviewHistory] = useState<InterviewRecord[]>(loadHistory);
+  // 随机刷题
+  const [randomQuestion, setRandomQuestion] = useState<Question | null>(null);
 
-  // Auth 状态
-  const [auth, setAuth] = useState<AuthState | null>(loadAuth);
-  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
-  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
+  // Tab 首次激活后保活
+  const [mountedTabs, setMountedTabs] = useState<Set<TabKey>>(new Set(['library' as TabKey]));
 
-  // 持久化到 localStorage
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_FAV, JSON.stringify(Array.from(favorites)));
-  }, [favorites]);
+  // 主题
+  const { theme, toggleTheme } = useTheme();
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_MARKS, JSON.stringify(marks));
-  }, [marks]);
+  // 自定义 hooks
+  const { auth, handleLogout: authLogout } = useAuth();
+  const { favorites, setFavorites, marks, setMarks, handleToggleFavorite, handleSetMark } = useFavorites();
+  const { interviewHistory, setInterviewHistory, handleSaveRecord, handleClearHistory } = useInterviewHistory();
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(interviewHistory));
-  }, [interviewHistory]);
-
-  // OAuth 回调处理
-  useEffect(() => {
-    if (hasOAuthCallback()) {
-      handleOAuthCallback().then(authState => {
-        if (authState) {
-          setAuth(authState);
-        }
-      });
-    }
-  }, []);
-
-  // 构建当前同步数据
-  const buildSyncData = useCallback((): SyncData => ({
-    favorites: Array.from(favorites),
-    marks: Object.fromEntries(
-      Object.entries(marks).map(([k, v]) => [k, v])
-    ),
+  const { syncStatus, lastSyncTime, handleSync, handleLogout } = useSync({
+    auth,
+    favorites,
+    marks,
     interviewHistory,
-    lastSyncAt: new Date().toISOString(),
-  }), [favorites, marks, interviewHistory]);
+    setFavorites,
+    setMarks,
+    setInterviewHistory,
+    onLogout: authLogout,
+  });
 
-  // 从 SyncData 恢复状态
-  const applySyncData = useCallback((data: SyncData) => {
-    setFavorites(new Set(data.favorites));
-    const restoredMarks: Record<number, MarkType> = {};
-    for (const [k, v] of Object.entries(data.marks)) {
-      if (v === 'favorite' || v === 'mastered' || v === 'weak') {
-        restoredMarks[Number(k)] = v as MarkType;
-      }
-    }
-    setMarks(restoredMarks);
-    setInterviewHistory(data.interviewHistory || []);
-  }, []);
-
-  // 同步操作
-  const handleSync = useCallback(async () => {
-    if (!auth) return;
-
-    setSyncStatus('syncing');
-    try {
-      // 获取或创建 Gist
-      let gistId = loadGistId();
-
-      if (!gistId) {
-        // 先查找已有的 Gist
-        gistId = await findExistingGist(auth.token);
-        if (gistId) {
-          saveGistId(gistId);
-        }
-      }
-
-      const localData = buildSyncData();
-
-      if (!gistId) {
-        // 首次使用，创建新 Gist
-        gistId = await createGist(auth.token, localData);
-        saveGistId(gistId);
-        setLastSyncTime(localData.lastSyncAt);
-      } else {
-        // 已有 Gist，读取并合并
-        const remoteData = await readGist(auth.token, gistId);
-
-        if (remoteData) {
-          const merged = mergeData(localData, remoteData);
-          applySyncData(merged);
-          await updateGist(auth.token, gistId, merged);
-          setLastSyncTime(merged.lastSyncAt);
-        } else {
-          // 远端文件不存在，上传本地
-          await updateGist(auth.token, gistId, localData);
-          setLastSyncTime(localData.lastSyncAt);
-        }
-      }
-
-      setSyncStatus('success');
-      setTimeout(() => setSyncStatus('idle'), 2000);
-    } catch (e) {
-      console.error('Sync error:', e);
-      setSyncStatus('error');
-    }
-  }, [auth, buildSyncData, applySyncData]);
-
-  // 登录后自动同步
+  // Tab 切换时标记已挂载
   useEffect(() => {
-    if (auth && !hasOAuthCallback()) {
-      handleSync();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [auth]);
-
-  const handleLogout = useCallback(() => {
-    logoutAuth();
-    clearGistId();
-    setAuth(null);
-    setLastSyncTime(null);
-  }, []);
-
-  const handleToggleFavorite = useCallback((id: number) => {
-    setFavorites(prev => {
+    setMountedTabs(prev => {
+      if (prev.has(activeTab)) return prev;
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      next.add(activeTab);
       return next;
     });
-  }, []);
+  }, [activeTab]);
 
-  const handleSetMark = useCallback((id: number, mark: MarkType | null) => {
-    setMarks(prev => {
-      const next = { ...prev };
-      if (mark === null) delete next[id];
-      else next[id] = mark;
-      return next;
-    });
-  }, []);
-
-  const handleSaveRecord = useCallback((record: InterviewRecord) => {
-    setInterviewHistory(prev => [record, ...prev]);
-  }, []);
-
-  const handleClearHistory = useCallback(() => {
-    setInterviewHistory([]);
-  }, []);
-
+  // 吸顶高度计算
   useEffect(() => {
     const el = stickyFilterRef.current;
     if (!el) return;
@@ -249,6 +98,31 @@ const App: React.FC = () => {
     });
   }, [activeCategory, activeDifficulty, searchText]);
 
+  // 筛选条件变化时重置分页
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [activeCategory, activeDifficulty, searchText]);
+
+  // 无限滚动加载更多
+  useEffect(() => {
+    const el = loaderRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount(prev => Math.min(prev + PAGE_SIZE, filteredQuestions.length));
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [filteredQuestions.length]);
+
+  const visibleQuestions = useMemo(() => {
+    return filteredQuestions.slice(0, visibleCount);
+  }, [filteredQuestions, visibleCount]);
+
   const stats = useMemo(() => {
     const total = questions.length;
     const hard = questions.filter(q => q.difficulty === 'hard').length;
@@ -256,9 +130,23 @@ const App: React.FC = () => {
     return { total, hard, categoryCount };
   }, []);
 
+  // 随机一题
+  const handleRandomQuestion = useCallback(() => {
+    const pool = filteredQuestions.length > 0 ? filteredQuestions : questions;
+    const idx = Math.floor(Math.random() * pool.length);
+    setRandomQuestion(pool[idx]);
+  }, [filteredQuestions]);
+
+  const closeRandomQuestion = useCallback(() => {
+    setRandomQuestion(null);
+  }, []);
+
   const renderLibrary = () => (
     <>
       <header className="app-header">
+        <button className="theme-toggle" onClick={toggleTheme} title={theme === 'dark' ? '切换浅色模式' : '切换深色模式'}>
+          {theme === 'dark' ? '☀️' : '🌙'}
+        </button>
         <h1>Frontend Interview</h1>
         <p className="subtitle">RN 架构 · AI Native · 系统设计</p>
       </header>
@@ -330,8 +218,15 @@ const App: React.FC = () => {
         </div>
       </div>
 
+      {/* 随机一题按钮 */}
+      <div className="random-quiz-bar">
+        <button className="random-quiz-btn" onClick={handleRandomQuestion}>
+          🎲 随机一题
+        </button>
+      </div>
+
       <div className="question-list">
-        {filteredQuestions.map((q) => (
+        {visibleQuestions.map((q) => (
           <QuestionCard
             key={q.id}
             question={q}
@@ -349,6 +244,12 @@ const App: React.FC = () => {
             <p className="empty-hint">试试调整筛选条件或搜索关键词</p>
           </div>
         )}
+        {/* 加载更多触发器 */}
+        <div ref={loaderRef} className="list-loader">
+          {visibleCount < filteredQuestions.length && (
+            <span className="loader-text">加载更多...</span>
+          )}
+        </div>
       </div>
 
       <footer className="app-footer">
@@ -358,34 +259,67 @@ const App: React.FC = () => {
     </>
   );
 
-  // Tab 切换时滚动到顶部
+  // Tab 切换或筛选条件变化时滚动到顶部
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [activeTab]);
+  }, [activeTab, activeCategory, activeDifficulty]);
 
   return (
     <div className="app">
+      {/* 随机一题弹窗 */}
+      {randomQuestion && (
+        <div className="random-modal-overlay" onClick={closeRandomQuestion}>
+          <div className="random-modal" onClick={e => e.stopPropagation()}>
+            <div className="random-modal-header">
+              <span>🎲 随机一题</span>
+              <button className="random-modal-close" onClick={closeRandomQuestion}>✕</button>
+            </div>
+            <div className="random-modal-body">
+              <QuestionCard
+                question={randomQuestion}
+                stickyTop={0}
+                isFavorite={favorites.has(randomQuestion.id)}
+                mark={marks[randomQuestion.id] || null}
+                onToggleFavorite={handleToggleFavorite}
+                onSetMark={handleSetMark}
+              />
+            </div>
+            <div className="random-modal-footer">
+              <button className="random-next-btn" onClick={handleRandomQuestion}>
+                下一题 →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{ display: activeTab === 'library' ? 'block' : 'none' }}>
         {renderLibrary()}
       </div>
-      <div style={{ display: activeTab === 'mock' ? 'block' : 'none' }}>
-        <MockInterview
-          interviewHistory={interviewHistory}
-          onSaveRecord={handleSaveRecord}
-          onClearHistory={handleClearHistory}
-        />
-      </div>
-      <div style={{ display: activeTab === 'review' ? 'block' : 'none' }}>
-        <ReviewAnalysis />
-      </div>
-      <div style={{ display: activeTab === 'favorites' ? 'block' : 'none' }}>
-        <Favorites
-          favorites={favorites}
-          marks={marks}
-          onToggleFavorite={handleToggleFavorite}
-          onSetMark={handleSetMark}
-        />
-      </div>
+      {mountedTabs.has('mock') && (
+        <div style={{ display: activeTab === 'mock' ? 'block' : 'none' }}>
+          <MockInterview
+            interviewHistory={interviewHistory}
+            onSaveRecord={handleSaveRecord}
+            onClearHistory={handleClearHistory}
+          />
+        </div>
+      )}
+      {mountedTabs.has('review') && (
+        <div style={{ display: activeTab === 'review' ? 'block' : 'none' }}>
+          <ReviewAnalysis />
+        </div>
+      )}
+      {mountedTabs.has('favorites') && (
+        <div style={{ display: activeTab === 'favorites' ? 'block' : 'none' }}>
+          <Favorites
+            favorites={favorites}
+            marks={marks}
+            onToggleFavorite={handleToggleFavorite}
+            onSetMark={handleSetMark}
+          />
+        </div>
+      )}
       <BottomBar activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   );

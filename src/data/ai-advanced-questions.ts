@@ -44,6 +44,11 @@ export const aiAdvancedQuestions: Question[] = [
 - IDE 插件：读取代码上下文 + 执行重构操作
 - 企业工具：连接内部 API/数据库/文档系统
 - 自动化：AI 编排多个系统完成复杂任务`,
+    oralAnswer: `MCP 是 Anthropic 提出的开放协议，标准化 AI 模型与外部工具和数据源的连接方式。它解决的是 N 乘 M 的集成问题——原来每个 AI 应用要为每个工具写定制代码，MCP 简化为 N+M，客户端和服务端各自实现协议就行。
+
+协议架构是 MCP Client（AI 应用侧）通过 JSON-RPC 2.0 与 MCP Server（工具侧）通信。核心概念有四个：Resources 暴露数据给模型读取，Tools 让模型调用外部功能，Prompts 是预定义模板，Sampling 是服务端反向请求模型生成内容。传输方式支持 stdio（本地）、HTTP+SSE（Web）、WebSocket。
+
+前端既可以作为 MCP Client 连接多个 Server 获取工具列表传给 LLM，也可以作为 MCP Server 把前端应用能力暴露出去，让 AI 能读取和操作界面。`,
   },
   {
     id: 1302,
@@ -98,6 +103,11 @@ export const aiAdvancedQuestions: Question[] = [
 - 单步重试 vs 整体重规划
 - Token 超限时的摘要压缩
 - 超时和无限循环检测（最大步数限制）`,
+    oralAnswer: `Agent Workflow 有四种主要架构模式。
+
+ReAct 是最基础的，循环执行 Thought-Action-Observation，线性执行适合简单场景。Plan-and-Execute 先整体规划再逐步执行，有全局视角减少错误累积。Multi-Agent 协作让多个专业 Agent 协作，适合跨领域复杂任务。状态机模式把工作流建模为有向图，支持循环、分支、并行，LangGraph 就是代表。
+
+前端实现要点有四个：状态管理要跟踪 Agent 执行状态和中间结果；流式 UI 展示思考链、工具调用状态、可展开的步骤详情和进度条；人机交互节点让用户在关键操作时确认或修正方向；错误处理包括单步重试、Token 超限摘要压缩、最大步数限制防无限循环。`,
   },
   {
     id: 1303,
@@ -159,6 +169,13 @@ export const aiAdvancedQuestions: Question[] = [
 - 复杂客服（多轮收集信息 → 决策 → 执行）
 - 代码生成（规划 → 编码 → 测试 → 修复 循环）
 - 数据分析（问题理解 → 查询生成 → 执行 → 可视化）`,
+    oralAnswer: `LangGraph 是基于有向图的 Agent 编排框架，让 AI 工作流像状态机一样精确可控。
+
+它有四个核心抽象：State 是全局数据容器，Node 是执行单元可以是 LLM 调用或工具调用，Edge 是节点间连接支持条件路由，Graph 是完整工作流定义。跟 LangChain 的区别是，LangChain 是线性链式调用，LangGraph 支持循环、分支和并行。
+
+核心特性方面，条件路由可以根据 LLM 输出动态选择下一步。循环支持可以从后续节点回到前面实现 ReAct 循环。Checkpointing 每个节点执行后保存状态快照，支持暂停恢复。Human-in-the-loop 通过 interrupt_before/after 配置暂停等待人工审批。
+
+前端集成主要是三块：可视化构建做拖拽式 Graph 编辑器；运行时展示当前执行到哪个节点、各节点输入输出；调试能力包括单步执行、断点和 State 快照对比。适用场景有复杂客服、代码生成和数据分析这些需要多步循环的任务。`,
   },
   {
     id: 1304,
@@ -216,6 +233,11 @@ AI Native：
 - LangChain.js（Agent/RAG/Chain）
 - TanStack Query（AI 请求的缓存和状态管理）
 - Zod（结构化输出校验）`,
+    oralAnswer: `AI Native 应用和传统 CRUD 应用有根本性差异。传统应用是确定性交互，同步请求毫秒级响应，UI 固定还原设计稿。AI Native 是非确定性的，同样输入可能不同输出，流式生成需要秒到分钟级，UI 要根据 AI 输出动态构造。
+
+架构设计上有五层。流式数据层用 SSE 或 WebSocket 长连接，状态包括 idle、streaming、paused、completed、error，通过增量 token 聚合批量渲染避免逐字符重渲染，AbortController 随时取消。AI 交互层管理对话消息列表、上下文窗口、工具调用和多模态。动态 UI 层做 Generative UI，根据返回内容动态渲染组件，结构化输出用 JSON Schema 校验加容错渲染，Markdown 增量解析。可靠性层做重试指数退避、缓存、降级兜底和反馈循环。成本控制层监控 Token 用量、Prompt 精简缓存、模型分级。
+
+技术栈推荐 Vercel AI SDK 统一多模型流式加 React Hooks，LangChain.js 做 Agent 和 RAG，TanStack Query 管缓存状态，Zod 做结构化输出校验。`,
   },
   {
     id: 1305,
@@ -276,6 +298,13 @@ AI Native：
 - 回答忠实度（是否基于检索内容）
 - 回答相关性（是否回答了用户问题）
 - 延迟（检索时间 + 生成时间）`,
+    oralAnswer: `RAG 工程化有三大关键挑战。
+
+第一是检索质量。分块策略很关键，固定长度切分会语义断裂，语义分块按段落标题切更精确但复杂，chunk 太小丢上下文太大引入噪音。向量检索要混合检索，向量加关键词 BM25 加 Reranker 重排序，还有元数据过滤先缩小范围。上下文组装要注意 chunks 拼接顺序、去重、相关性阈值过滤和 Context Window 限制。
+
+第二是前端体验优化。引用溯源 UI 在回答中标注来源，点击跳转原文高亮引用段落。反馈机制让用户标记有帮助或答非所问来优化检索策略。检索过程透明化展示搜索进度和找到的片段预览，用户可以手动选择排除来源。文件上传要展示处理状态包括解析分块向量化。性能上做客户端缓存、预加载和流式输出加引用延迟加载。
+
+第三是评估指标，包括检索准确率 Recall@K、回答忠实度是否基于检索内容、回答相关性、以及检索加生成的总延迟。`,
   },
   {
     id: 1306,
@@ -342,6 +371,11 @@ registry.register(calculatorTool);
 - MCP Server 暴露的 Tool 可以直接映射为 Function Calling Schema
 - MCP 提供标准化的工具发现和调用协议
 - 前端 MCP Client 连接多个 MCP Server → 统一工具列表 → 传给模型`,
+    oralAnswer: `Function Calling 的工作流程是：开发者定义工具 Schema 包括名称描述和参数 JSON Schema，用户消息加工具列表一起发给模型，模型判断是否需要调用工具并输出结构化调用请求，客户端执行工具把结果返回模型，模型再根据结果生成最终回复。OpenAI 叫 Function Calling，Anthropic 叫 Tool Use，本质相同都是模型生成结构化的工具调用意图。
+
+可扩展工具系统设计有六个要点。工具注册中心用 interface 定义 Tool 包含 name、description、parameters、execute 函数以及 category、requiresAuth、rateLimit 等元信息。动态工具发现根据用户上下文和权限选择可用工具，避免一次传太多给模型影响准确性。执行层要沙箱执行、超时控制、重试机制和结果格式化。安全控制做权限系统、参数 Zod 校验、写操作用户确认和审计日志。前端展示做工具调用卡片、执行状态动画、重试按钮和富文本渲染。
+
+跟 MCP 的关系是，MCP Server 暴露的 Tool 可以直接映射为 Function Calling Schema，MCP 提供标准化的工具发现和调用协议，前端 MCP Client 连接多个 Server 统一工具列表传给模型。`,
   },
   {
     id: 1307,
@@ -404,6 +438,13 @@ registry.register(calculatorTool);
 - 注入防护：过滤特殊指令字符
 - 越狱检测：监控异常输出模式
 - 输入长度限制 + 清洗`,
+    oralAnswer: `高级 Prompt Engineering 主要分三部分。
+
+结构化 Prompt 设计方面，System Prompt 要分层：Role 定义角色背景和能力边界，Context 提供相关信息和约束，Instructions 给具体任务步骤，Output Format 定义输出格式比如 JSON Schema，Examples 给输入输出示例对。思维链技巧包括基础 CoT「请一步步思考」、结构化 CoT 给明确步骤、Self-Consistency 多次生成取多数、Tree of Thought 探索多条推理路径。上下文管理要相关信息前置因为模型对开头注意力更高，用分隔符区分信息块。
+
+系统性优化方法有四步：Prompt 版本管理给每个 Prompt 版本号和变更记录；评估体系建立测试集用 LLM-as-Judge 自动评估加人工标注；迭代流程是观察失败 case、分析原因、修改 Prompt、回归测试、发布；A/B 测试线上小流量对比不同版本看准确率和 Token 消耗。
+
+前端实践主要是 Prompt 模板引擎做变量插值和条件段落，动态组装根据上下文添加指令，安全方面做注入防护、越狱检测和输入清洗。`,
   },
   {
     id: 1308,
@@ -480,6 +521,13 @@ RN 集成示例：
 - Camera + 实时推理（每帧检测）
 - 输入框 + 端侧文本补全
 - 离线翻译/摘要`,
+    oralAnswer: `端侧 AI 有四个核心优势：隐私数据不出设备、延迟小于 100ms 无网络往返、无服务器调用成本、离线可用。
+
+移动端推理框架方面，ExecuTorch 是 Meta 的方案也是 RN 首选，PyTorch 模型直接导出到移动端，支持 iOS CoreML/Metal 和 Android NNAPI，有 react-native-executorch 集成。Core ML 是 Apple 原生框架支持 Neural Engine 加速。TFLite 和 MediaPipe 是 Google 的跨平台方案。ONNX Runtime Mobile 提供统一模型格式和跨平台 API。
+
+模型优化是移动端部署必需的，包括量化把 INT8 或 INT4 量化体积大幅缩小速度提升几倍，蒸馏从大模型迁移知识到小模型，剪枝移除不重要的权重。
+
+前端 AI 功能开发实践分几类：文本类做端侧分类情感分析、输入联想纠错、本地语义搜索；图像类做实时物体检测 OCR 图片分类；语音类做语音唤醒、本地语音转文字、声纹识别。推荐混合策略，简单任务端侧处理，复杂任务云端，网络可用时云端无网时端侧降级。`,
   },
   {
     id: 1309,
@@ -546,6 +594,13 @@ RN 集成示例：
 - 长文本 FlatList 虚拟化渲染
 - 减少主线程压力：UI 更新批量化
 - 内存控制：超长对话定期清理旧消息`,
+    oralAnswer: `流式输出工程化有三层挑战。
+
+传输层方面，协议选择有 SSE 单向自动重连、WebSocket 双向低开销需心跳、Fetch ReadableStream 灵活支持 POST。断线续传方案是服务端记录 offset 客户端带 last-event-id 重连，或客户端定期保存已接收内容重新请求跳过已有部分。背压处理用 ReadableStream 天然支持，设计缓冲区 accumulate 再 batch render。
+
+渲染层方面，每个 token 触发 setState 会大量重渲染，优化是批量更新累积 100ms 的 token 一次渲染，用 requestAnimationFrame 节流或 useRef 存内容定时同步。Markdown 流式解析要处理不完整的代码块表格列表，用增量解析只解析新增部分。代码块等完整后再高亮或流式高亮。
+
+体验优化方面，感知性能用打字机效果匀速展示即使 token 突发到达，光标闪烁表示思考中，首 token 时间控制在 500ms 内。交互上支持随时中断用 AbortController，自动滚动但用户手动滚动后停止。错误处理保留已生成内容加重试按钮。RN 移动端特别要注意长文本 FlatList 虚拟化、UI 更新批量化和超长对话内存控制。`,
   },
   {
     id: 1310,
@@ -612,5 +667,12 @@ RN 集成示例：
 - 深入某个垂直领域（如 AI IDE / AI Design Tool）
 - 开源项目贡献 + 技术文章输出
 - 关注：AI SDK 生态 + 模型能力边界 + 产品感`,
+    oralAnswer: `AI 前端未来有五个方向。
+
+第一是 Generative UI，AI 根据用户意图动态生成界面组件而非预先固定页面。实现方式有三种：Server Components 加 AI 直接渲染组件流，Vercel AI SDK 的 createStreamableUI；结构化输出加组件映射，AI 返回 JSON Schema 前端动态渲染组件库；代码生成加沙箱执行，AI 直接生成 React 组件代码在沙箱编译执行，v0.dev 就是这个原理。
+
+第二是 AI Agent IDE，前端开发的 AI 助手不再只是补全而是自主完成任务，从理解需求到设计架构到编写代码到自测提交，前端工程师角色转变为 Agent 调试者和架构师。第三是多模态交互，语音视觉文本统一，比如截图录屏让 AI 理解后生成修改。第四是端云协同智能，端侧小模型处理实时任务响应快保隐私，云端大模型处理复杂推理，智能路由判断任务复杂度选择端或云。
+
+转型路径方面，入门 1-2 个月掌握 API 调用流式输出和 Prompt Engineering，做一个对话应用。进阶 2-3 个月学 RAG、Function Calling、LangChain.js。深入 3-6 个月设计 Agent Workflow、实现 MCP Server、端侧 AI 集成。竞争力构建核心是 AI 加前端的交叉能力稀缺，深入某个垂直领域做开源和技术输出。`,
   },
 ];
