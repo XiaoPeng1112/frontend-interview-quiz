@@ -1,10 +1,15 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Question } from '../data/questions';
+import { StarFilled, StarOutlined, CheckCircleFilled, CheckCircleOutlined, ExclamationCircleFilled, ExclamationCircleOutlined } from '@ant-design/icons';
 import './QuestionCard.css';
 
 interface Props {
   question: Question;
   stickyTop?: number;
+  isFavorite?: boolean;
+  mark?: string | null;
+  onToggleFavorite?: (id: number) => void;
+  onSetMark?: (id: number, mark: any) => void;
 }
 
 const difficultyMap = {
@@ -13,7 +18,7 @@ const difficultyMap = {
   hard: { label: '深度', className: 'difficulty-hard' },
 };
 
-const QuestionCard: React.FC<Props> = ({ question, stickyTop = 0 }) => {
+const QuestionCard: React.FC<Props> = ({ question, stickyTop = 0, isFavorite, mark, onToggleFavorite, onSetMark }) => {
   const [showAnswer, setShowAnswer] = useState(false);
   const [answerTab, setAnswerTab] = useState<'key' | 'oral'>('key');
   const difficulty = difficultyMap[question.difficulty];
@@ -55,6 +60,26 @@ const QuestionCard: React.FC<Props> = ({ question, stickyTop = 0 }) => {
           onClick={() => !showAnswer && setShowAnswer(true)}
         >
           <span className="question-title-text">{question.question}</span>
+          <span className="question-actions" onClick={(e) => e.stopPropagation()}>
+            <span
+              className={`q-action-icon ${isFavorite ? 'favorite-active' : ''}`}
+              onClick={() => onToggleFavorite?.(question.id)}
+            >
+              {isFavorite ? <StarFilled /> : <StarOutlined />}
+            </span>
+            <span
+              className={`q-action-icon ${mark === 'mastered' ? 'mastered-active' : ''}`}
+              onClick={() => onSetMark?.(question.id, mark === 'mastered' ? null : 'mastered')}
+            >
+              {mark === 'mastered' ? <CheckCircleFilled /> : <CheckCircleOutlined />}
+            </span>
+            <span
+              className={`q-action-icon ${mark === 'weak' ? 'weak-active' : ''}`}
+              onClick={() => onSetMark?.(question.id, mark === 'weak' ? null : 'weak')}
+            >
+              {mark === 'weak' ? <ExclamationCircleFilled /> : <ExclamationCircleOutlined />}
+            </span>
+          </span>
           {!showAnswer && <span className="expand-hint">查看 ▾</span>}
         </h3>
       </div>

@@ -332,29 +332,15 @@ const App: React.FC = () => {
 
       <div className="question-list">
         {filteredQuestions.map((q) => (
-          <div key={q.id} className="question-item-wrap">
-            <div className="question-item-actions">
-              <button
-                className={`q-mark-btn ${favorites.has(q.id) ? 'active' : ''}`}
-                onClick={() => handleToggleFavorite(q.id)}
-              >
-                {favorites.has(q.id) ? '⭐' : '☆'}
-              </button>
-              <button
-                className={`q-mark-btn small ${marks[q.id] === 'mastered' ? 'mastered' : ''}`}
-                onClick={() => handleSetMark(q.id, marks[q.id] === 'mastered' ? null : 'mastered')}
-              >
-                ✅
-              </button>
-              <button
-                className={`q-mark-btn small ${marks[q.id] === 'weak' ? 'weak' : ''}`}
-                onClick={() => handleSetMark(q.id, marks[q.id] === 'weak' ? null : 'weak')}
-              >
-                ❗
-              </button>
-            </div>
-            <QuestionCard question={q} stickyTop={stickyTop} />
-          </div>
+          <QuestionCard
+            key={q.id}
+            question={q}
+            stickyTop={stickyTop}
+            isFavorite={favorites.has(q.id)}
+            mark={marks[q.id] || null}
+            onToggleFavorite={handleToggleFavorite}
+            onSetMark={handleSetMark}
+          />
         ))}
         {filteredQuestions.length === 0 && (
           <div className="empty-state">
