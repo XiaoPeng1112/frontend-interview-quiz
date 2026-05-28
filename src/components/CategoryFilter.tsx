@@ -18,24 +18,26 @@ const CategoryFilter: React.FC<Props> = ({
 
   return (
     <div className="category-filter">
-      <div
-        className={`category-grid ${expanded ? 'expanded' : 'collapsed'}`}
-        style={!expanded ? { maxHeight: `${COLLAPSED_MAX_HEIGHT}px` } : undefined}
-      >
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            className={`category-btn ${activeCategory === cat ? 'active' : ''}`}
-            onClick={() => onCategoryChange(cat)}
-          >
-            {cat}
-          </button>
-        ))}
+      <div className="category-row">
+        <div
+          className={`category-grid ${expanded ? 'expanded' : 'collapsed'}`}
+          style={!expanded ? { maxHeight: `${COLLAPSED_MAX_HEIGHT}px` } : undefined}
+        >
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              className={`category-btn ${activeCategory === cat ? 'active' : ''}`}
+              onClick={() => onCategoryChange(cat)}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
         <button
-          className="category-btn category-toggle-inline"
+          className="category-toggle-inline"
           onClick={() => setExpanded(!expanded)}
         >
-          {expanded ? '收起 ▲' : '更多 ▼'}
+          {expanded ? '收起▲' : '更多▼'}
         </button>
       </div>
     </div>

@@ -2,11 +2,18 @@
   margin-bottom: 4px;
 }
 
+.category-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
 .category-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
   overflow: hidden;
+  flex: 1;
 }
 
 .category-grid.collapsed {
@@ -14,7 +21,7 @@
 }
 
 .category-grid.expanded {
-  max-height: 500px;
+  max-height: none;
 }
 
 .category-btn {
@@ -43,10 +50,18 @@
 }
 
 .category-toggle-inline {
-  color: var(--text-muted);
-  border-color: rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.02);
+  flex-shrink: 0;
+  padding: 3px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 5px;
   font-size: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 1.4;
+  margin-top: 1px;
+  transition: color 0.2s;
 }
 
 .category-toggle-inline:active {
