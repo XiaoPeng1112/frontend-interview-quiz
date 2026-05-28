@@ -216,14 +216,86 @@
   background: rgba(255, 255, 255, 0.06);
 }
 
-.answer-content pre {
-  font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', 'PingFang SC', monospace;
-  font-size: 12px;
+/* Markdown answer styles */
+.answer-markdown {
+  font-size: 13px;
   line-height: 1.7;
   color: var(--text-secondary);
-  white-space: pre-wrap;
   word-wrap: break-word;
-  margin: 0;
+  overflow-wrap: break-word;
+}
+
+.answer-markdown p {
+  margin: 6px 0;
+}
+
+.answer-markdown ul,
+.answer-markdown ol {
+  padding-left: 18px;
+  margin: 6px 0;
+}
+
+.answer-markdown li {
+  margin: 3px 0;
+}
+
+.answer-markdown h1,
+.answer-markdown h2,
+.answer-markdown h3,
+.answer-markdown h4 {
+  color: var(--text-primary);
+  margin: 10px 0 6px;
+  font-weight: 600;
+}
+
+.answer-markdown h3 {
+  font-size: 14px;
+}
+
+.answer-markdown h4 {
+  font-size: 13px;
+}
+
+.answer-markdown strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.answer-markdown code.inline-code {
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--primary-light);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+}
+
+.answer-markdown blockquote {
+  border-left: 3px solid var(--primary);
+  margin: 8px 0;
+  padding: 4px 12px;
+  background: rgba(99, 102, 241, 0.05);
+  border-radius: 0 6px 6px 0;
+}
+
+.answer-markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0;
+  font-size: 12px;
+}
+
+.answer-markdown th,
+.answer-markdown td {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 6px 8px;
+  text-align: left;
+}
+
+.answer-markdown th {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
 @keyframes slideDown {

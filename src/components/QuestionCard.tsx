@@ -1,6 +1,10 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Question } from '../data/questions';
 import { StarFilled, StarOutlined, CheckCircleFilled, CheckCircleOutlined, ExclamationCircleFilled, ExclamationCircleOutlined } from '@ant-design/icons';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import './QuestionCard.css';
 
 interface Props {
@@ -37,6 +41,10 @@ const QuestionCard: React.FC<Props> = ({ question, stickyTop = 0, isFavorite, ma
   }, [stickyTop]);
 
   const hasOralAnswer = !!question.oralAnswer;
+
+  const answerText = answerTab === 'oral' && hasOralAnswer
+    ? question.oralAnswer || ''
+    : question.answer;
 
   return (
     <div className={`question-card ${showAnswer ? 'expanded' : ''}`} ref={cardRef}>
@@ -102,11 +110,38 @@ const QuestionCard: React.FC<Props> = ({ question, stickyTop = 0, isFavorite, ma
               </button>
             </div>
           )}
-          <pre>
-            {answerTab === 'oral' && hasOralAnswer
-              ? question.oralAnswer
-              : question.answer}
-          </pre>
+          <div className="answer-markdown">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                code({ node, className, children, ...props }) {
+                  const match = /language-(\w+)/.exec(className || '');
+                  const inline = !match && !String(children).includes('\n');
+                  return !inline ? (
+                    <SyntaxHighlighter
+                      style={vscDarkPlus as any}
+                      language={match ? match[1] : 'text'}
+                      PreTag="div"
+                      customStyle={{
+                        margin: '8px 0',
+                        borderRadius: '8px',
+                        fontSize: '12px',
+                        padding: '12px',
+                      }}
+                    >
+                      {String(children).replace(/\n$/, '')}
+                    </SyntaxHighlighter>
+                  ) : (
+                    <code className="inline-code" {...props}>
+                      {children}
+                    </code>
+                  );
+                },
+              }}
+            >
+              {answerText}
+            </ReactMarkdown>
+          </div>
         </div>
       )}
     </div>

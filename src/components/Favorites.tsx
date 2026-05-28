@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { questions } from '../data/questions';
+import { StarFilled, CheckCircleFilled, ExclamationCircleFilled } from '@ant-design/icons';
 import QuestionCard from './QuestionCard';
 import './Favorites.css';
 
@@ -102,19 +103,19 @@ const Favorites: React.FC<Props> = ({ favorites, marks, onToggleFavorite, onSetM
             className={`fav-filter ${activeFilter === 'favorite' ? 'active' : ''}`}
             onClick={() => handleFilterChange('favorite')}
           >
-            ⭐ 收藏 <span className="fav-count">{counts.favorite}</span>
+            <StarFilled style={{ color: '#fadb14', fontSize: 12 }} /> 收藏 <span className="fav-count">{counts.favorite}</span>
           </button>
           <button
             className={`fav-filter ${activeFilter === 'mastered' ? 'active' : ''}`}
             onClick={() => handleFilterChange('mastered')}
           >
-            ✅ 已掌握 <span className="fav-count">{counts.mastered}</span>
+            <CheckCircleFilled style={{ color: '#52c41a', fontSize: 12 }} /> 已掌握 <span className="fav-count">{counts.mastered}</span>
           </button>
           <button
             className={`fav-filter ${activeFilter === 'weak' ? 'active' : ''}`}
             onClick={() => handleFilterChange('weak')}
           >
-            ❗ 薄弱 <span className="fav-count">{counts.weak}</span>
+            <ExclamationCircleFilled style={{ color: '#ff4d4f', fontSize: 12 }} /> 薄弱 <span className="fav-count">{counts.weak}</span>
           </button>
         </div>
       </div>
@@ -129,32 +130,15 @@ const Favorites: React.FC<Props> = ({ favorites, marks, onToggleFavorite, onSetM
         <>
           <div className="favorites-list">
             {visibleQuestions.map(q => (
-              <div key={q.id} className="favorite-item">
-                <div className="favorite-actions">
-                  <button
-                    className={`mark-btn ${favorites.has(q.id) ? 'active' : ''}`}
-                    onClick={() => onToggleFavorite(q.id)}
-                    title="收藏"
-                  >
-                    {favorites.has(q.id) ? '⭐' : '☆'}
-                  </button>
-                  <button
-                    className={`mark-btn ${marks[q.id] === 'mastered' ? 'active mastered' : ''}`}
-                    onClick={() => onSetMark(q.id, marks[q.id] === 'mastered' ? null : 'mastered')}
-                    title="已掌握"
-                  >
-                    ✅
-                  </button>
-                  <button
-                    className={`mark-btn ${marks[q.id] === 'weak' ? 'active weak' : ''}`}
-                    onClick={() => onSetMark(q.id, marks[q.id] === 'weak' ? null : 'weak')}
-                    title="薄弱"
-                  >
-                    ❗
-                  </button>
-                </div>
-                <QuestionCard question={q} stickyTop={stickyTop} />
-              </div>
+              <QuestionCard
+                key={q.id}
+                question={q}
+                stickyTop={stickyTop}
+                isFavorite={favorites.has(q.id)}
+                mark={marks[q.id] || null}
+                onToggleFavorite={onToggleFavorite}
+                onSetMark={onSetMark}
+              />
             ))}
           </div>
 
