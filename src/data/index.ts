@@ -17,6 +17,7 @@ import { resumeRound1Questions } from './resume-round1-questions';
 import { resumeRound2Questions } from './resume-round2-questions';
 import { resumeSkillsQuestions } from './resume-skills-questions';
 import { resumeProject1Questions } from './resume-project1-questions';
+import { rnHandwritingQuestions } from './rn-handwriting-questions';
 
 export type { Question };
 
@@ -29,6 +30,7 @@ export const categories = [
   '美团项目',
   'React Native',
   'RN 架构深度',
+  'RN 手写题',
   'React',
   'JavaScript',
   'TypeScript',
@@ -61,4 +63,5 @@ export const questions: Question[] = [
   ...resumeRound2Questions,
   ...resumeSkillsQuestions,
   ...resumeProject1Questions,
+  ...rnHandwritingQuestions,
 ];
