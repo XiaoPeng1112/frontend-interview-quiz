@@ -90,16 +90,17 @@
 
 /* Collapse button - inline text style in header */
 .collapse-btn {
-  margin-left: auto;
+  margin-left: 6px;
   background: none;
   border: none;
   color: var(--primary-light);
-  font-size: 12px;
+  font-size: 11px;
   cursor: pointer;
-  padding: 2px 8px;
+  padding: 2px 4px;
   border-radius: 4px;
   opacity: 0.8;
   transition: opacity 0.2s ease;
+  flex-shrink: 0;
 }
 
 .collapse-btn:active {
@@ -125,19 +126,19 @@
 .question-actions {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
   margin-left: auto;
   flex-shrink: 0;
 }
 
 .q-action-icon {
-  font-size: 16px;
+  font-size: 14px;
   color: var(--text-muted);
   cursor: pointer;
   transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
-  padding: 3px;
+  padding: 2px;
   -webkit-tap-highlight-color: transparent;
 }
 
