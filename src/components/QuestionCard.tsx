@@ -81,18 +81,13 @@ const QuestionCard: React.FC<Props> = ({ question, stickyTop = 0, isFavorite, ma
               {mark === 'weak' ? <ExclamationCircleFilled /> : <ExclamationCircleOutlined />}
             </span>
           </span>
-          {showAnswer && (
-            <button className="collapse-btn" onClick={handleCollapse}>
-              收起 ▲
-            </button>
-          )}
         </div>
         <h3
           className="question-title"
-          onClick={() => !showAnswer && setShowAnswer(true)}
+          onClick={() => showAnswer ? handleCollapse() : setShowAnswer(true)}
         >
           <span className="question-title-text">{question.question}</span>
-          {!showAnswer && <span className="expand-hint">查看 ▾</span>}
+          <span className="expand-hint">{showAnswer ? '收起 ▲' : '查看 ▾'}</span>
         </h3>
       </div>
 
