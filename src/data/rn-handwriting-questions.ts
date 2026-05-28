@@ -2,7 +2,7 @@ import { Question } from './types';
 
 export const rnHandwritingQuestions: Question[] = [
   {
-    id: 2001,
+    id: 7001,
     category: 'RN 手写题',
     difficulty: 'medium',
     question: '手写一个 React Native 无限滚动列表（下拉刷新 + 上拉加载更多）',
@@ -68,7 +68,7 @@ const InfiniteList = () => {
     oralAnswer: `这题考的是 FlatList 的实际使用。核心就是维护 page 和 loading 两个状态，下拉刷新的时候 page 重置为 1 然后替换数据，上拉加载的时候 page+1 然后追加数据。有个关键点是防止重复请求，loading 为 true 就不要再发了。onEndReachedThreshold 设 0.3 左右比较好，太小的话用户会感觉到等待。`,
   },
   {
-    id: 2002,
+    id: 7002,
     category: 'RN 手写题',
     difficulty: 'medium',
     question: '手写防抖（debounce）和节流（throttle），要求支持取消和立即执行',
@@ -146,7 +146,7 @@ function throttle<T extends (...args: any[]) => any>(
     oralAnswer: `防抖和节流的核心区别：防抖是"等你停下来才执行"，节流是"每隔一段时间执行一次"。防抖的实现就是每次触发都清除上一个定时器重新计时。节流的实现是记录上次执行时间，如果距离上次执行超过了间隔就执行。进阶点是支持 leading（首次立即执行）和 trailing（最后一次也执行），以及 cancel 取消方法。RN 里搜索框用防抖，列表滚动监听用节流。`,
   },
   {
-    id: 2003,
+    id: 7003,
     category: 'RN 手写题',
     difficulty: 'medium',
     question: '手写 Promise.all 和 Promise.race',
@@ -202,7 +202,7 @@ function promiseAllSettled<T>(promises: Promise<T>[]) {
     oralAnswer: `Promise.all 的核心思路是创建一个新 Promise，内部用计数器追踪完成数量。每个 promise 完成时把结果按 index 放到数组里，计数器加一，等计数器等于总数就 resolve。有一个注意点是结果要按顺序，所以用 index 而不是 push。任何一个 reject 就直接 reject 整个。Promise.race 更简单，谁先完成就用谁的结果。`,
   },
   {
-    id: 2004,
+    id: 7004,
     category: 'RN 手写题',
     difficulty: 'hard',
     question: '手写一个 EventEmitter（发布订阅模式）',
@@ -265,7 +265,7 @@ RN 中 EventEmitter 的应用场景：
     oralAnswer: `发布订阅模式的核心就是一个 Map，key 是事件名，value 是回调函数数组。on 就是往数组里 push，emit 就是把数组里的函数全执行一遍，off 就是从数组里过滤掉。有两个细节：once 的实现是包一层 wrapper，执行后自动 off 掉自己；emit 时要拷贝数组再遍历，防止 once 里删除导致遍历出错。在 RN 里这个模式很常见，Native 给 JS 发事件就是用 EventEmitter。`,
   },
   {
-    id: 2005,
+    id: 7005,
     category: 'RN 手写题',
     difficulty: 'medium',
     question: '手写深拷贝（支持循环引用、特殊类型）',
@@ -315,7 +315,7 @@ function deepClone<T>(obj: T, map = new WeakMap()): T {
     oralAnswer: `深拷贝的思路是递归，但有几个关键点。第一是循环引用，用 WeakMap 记录已经拷贝过的对象，遇到就直接返回缓存。为什么用 WeakMap 不用 Map？因为 WeakMap 的 key 是弱引用，拷贝完对象被回收时不会内存泄漏。第二是特殊类型要单独处理，Date 要 new Date，RegExp 要 new RegExp。第三是要用 Object.create 保持原型链。面试中如果时间紧，先写基础版本（递归 + 循环引用），再提一下特殊类型的处理就可以了。`,
   },
   {
-    id: 2006,
+    id: 7006,
     category: 'RN 手写题',
     difficulty: 'hard',
     question: '手写一个带并发限制的请求调度器（Scheduler）',
@@ -373,7 +373,7 @@ const results = await Promise.all(
     oralAnswer: `并发调度器的核心就是一个队列加一个计数器。add 方法接收一个返回 Promise 的函数，如果当前并发数没到上限就立即执行，否则放入队列。每个任务完成后（finally 里），计数器减一然后看队列里有没有等待的任务，有就取出来执行。这个在 RN 里很实用，比如批量上传图片限制最多同时 3 个上传，或者列表预加载图片不想一次性发太多请求。`,
   },
   {
-    id: 2007,
+    id: 7007,
     category: 'RN 手写题',
     difficulty: 'medium',
     question: '手写一个自定义 Hook：useDebounce 和 useThrottle',
@@ -445,7 +445,7 @@ function useThrottle<T>(value: T, interval: number): T {
     oralAnswer: `useDebounce 很简单，就是 useEffect 里设置 setTimeout，value 变化时清除上一个重新计时。useDebounceFn 稍复杂一点，关键是用 useRef 保持函数引用最新（避免闭包陷阱），用 useCallback 保证返回的防抖函数引用稳定。useThrottle 的思路是记录上次更新时间，如果超过间隔就立即更新，否则设个定时器等到间隔结束再更新。这些在 RN 里用得很多，搜索框、按钮防连点都需要。`,
   },
   {
-    id: 2008,
+    id: 7008,
     category: 'RN 手写题',
     difficulty: 'hard',
     question: '手写一个 LRU Cache（最近最少使用缓存）',
@@ -502,7 +502,7 @@ RN 中应用：图片缓存策略、接口数据缓存、路由栈管理`,
     oralAnswer: `LRU 缓存的核心思路是"最近使用的排后面，最久没用的排前面，满了就删前面的"。利用 JS Map 天然保持插入顺序的特性，get 的时候先删再插就相当于移到了最后（最新），put 的时候如果满了就用 keys().next().value 拿到第一个（最旧的）删掉。整个实现很简洁，get 和 put 都是 O(1)。在 RN 里做图片缓存或者 API 缓存都会用到这个思路。`,
   },
   {
-    id: 2009,
+    id: 7009,
     category: 'RN 手写题',
     difficulty: 'medium',
     question: '手写 Array.prototype.reduce 和 Array.prototype.flat',
@@ -572,7 +572,7 @@ flat 关键点：
     oralAnswer: `reduce 的关键是处理有没有初始值两种情况：有初始值就从 index 0 开始遍历，累加器初始化为 initialValue；没有的话就从 index 1 开始，累加器初始化为第一个元素。空数组又没有初始值要抛错。flat 的实现最简洁的方式是用 reduce 递归，每个元素判断是不是数组，是的话递归 flat 并 concat，depth 减一直到 0 就停止展开。`,
   },
   {
-    id: 2010,
+    id: 7010,
     category: 'RN 手写题',
     difficulty: 'hard',
     question: '手写一个简易版 React useState 和 useEffect（理解 Hooks 原理）',
