@@ -402,19 +402,32 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Disable sticky header inside modal — small viewport, not needed */
+/* Sticky header inside modal: fix content leaking above */
 .random-modal-body .question-sticky-header.is-sticky {
-  position: relative;
-  top: auto;
-  margin: 0;
-  padding: 10px 10px 8px;
-  border-radius: 0;
-  background: none;
-  border-bottom: none;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: linear-gradient(160deg, #1a1640 0%, #2d2760 50%, #252245 100%);
+  border-radius: 10px 10px 0 0;
+  margin: -12px -12px 0;
+  padding: 12px 12px 8px;
+  border-bottom: 1px solid rgba(99, 102, 241, 0.15);
 }
 
 .random-modal-body .question-sticky-header.is-sticky::before {
-  display: none;
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: 0;
+  right: 0;
+  height: 12px;
+  background: inherit;
+  border-radius: 10px 10px 0 0;
+}
+
+[data-theme="light"] .random-modal-body .question-sticky-header.is-sticky {
+  background: linear-gradient(160deg, #f8fafc 0%, #eef2ff 50%, #e0e7ff 100%);
+  border-bottom-color: rgba(99, 102, 241, 0.12);
 }
 
 .random-modal-footer {
