@@ -7,7 +7,7 @@ interface Props {
   onCategoryChange: (category: string) => void;
 }
 
-const COLLAPSED_MAX_HEIGHT = 68; // 约两行按钮的高度
+const COLLAPSED_MAX_HEIGHT = 58; // 约两行按钮的高度
 
 const CategoryFilter: React.FC<Props> = ({
   categories,
@@ -31,13 +31,13 @@ const CategoryFilter: React.FC<Props> = ({
             {cat}
           </button>
         ))}
+        <button
+          className="category-btn category-toggle-inline"
+          onClick={() => setExpanded(!expanded)}
+        >
+          {expanded ? '收起 ▲' : '更多 ▼'}
+        </button>
       </div>
-      <button
-        className="category-toggle"
-        onClick={() => setExpanded(!expanded)}
-      >
-        {expanded ? '收起 ▲' : '展开全部 ▼'}
-      </button>
     </div>
   );
 };

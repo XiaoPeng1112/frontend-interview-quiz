@@ -1,8 +1,8 @@
 .difficulty-filter {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding-top: 5px;
+  gap: 6px;
+  padding-top: 4px;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -21,7 +21,7 @@
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  padding: 4px 8px;
+  padding: 3px 7px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 5px;
   font-size: 11px;
