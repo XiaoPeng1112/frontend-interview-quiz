@@ -1,8 +1,8 @@
 .question-card {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 16px;
+  border-radius: 12px;
+  padding: 12px;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   transition: all 0.3s ease;
@@ -29,14 +29,14 @@
 .question-sticky-header.is-sticky {
   position: sticky;
   z-index: 50;
-  padding: 12px 16px 12px;
-  margin: -16px -16px 0;
-  border-radius: 16px 16px 0 0;
+  padding: 10px 12px 10px;
+  margin: -12px -12px 0;
+  border-radius: 12px 12px 0 0;
   background: linear-gradient(160deg, #1a1640 0%, #2d2760 50%, #252245 100%);
   border-bottom: 1px solid rgba(99, 102, 241, 0.15);
   /* 向上多遮盖几像素，防止答案从顶部缝隙漏出 */
-  padding-top: 16px;
-  margin-top: -16px;
+  padding-top: 12px;
+  margin-top: -12px;
 }
 
 .question-sticky-header.is-sticky::before {
@@ -52,8 +52,8 @@
 .question-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 6px;
+  margin-bottom: 6px;
 }
 
 .difficulty-tag {
@@ -107,15 +107,15 @@
 }
 
 .question-title {
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
   color: var(--text-primary);
-  line-height: 1.6;
+  line-height: 1.5;
   margin-bottom: 0;
   cursor: pointer;
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 6px;
 }
 
 .question-title-text {
@@ -142,10 +142,10 @@
 }
 
 .answer-content {
-  margin-top: 14px;
-  padding: 14px 16px;
+  margin-top: 10px;
+  padding: 10px 12px;
   background: rgba(0, 0, 0, 0.2);
-  border-radius: 12px;
+  border-radius: 10px;
   border-left: 3px solid var(--primary);
   animation: slideDown 0.3s ease;
 }
@@ -184,8 +184,8 @@
 
 .answer-content pre {
   font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', 'PingFang SC', monospace;
-  font-size: 12.5px;
-  line-height: 1.75;
+  font-size: 12px;
+  line-height: 1.7;
   color: var(--text-secondary);
   white-space: pre-wrap;
   word-wrap: break-word;
