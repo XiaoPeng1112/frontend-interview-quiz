@@ -1,19 +1,19 @@
 {
   "files": {
-    "main.css": "/frontend-interview-quiz/static/css/main.3e82905e.css",
-    "main.js": "/frontend-interview-quiz/static/js/main.d06f27ac.js",
+    "main.css": "/frontend-interview-quiz/static/css/main.24128571.css",
+    "main.js": "/frontend-interview-quiz/static/js/main.4d184b93.js",
     "static/js/3.fd696793.chunk.js": "/frontend-interview-quiz/static/js/3.fd696793.chunk.js",
     "static/js/453.b591adc0.chunk.js": "/frontend-interview-quiz/static/js/453.b591adc0.chunk.js",
     "static/js/211.547bb4d6.chunk.js": "/frontend-interview-quiz/static/js/211.547bb4d6.chunk.js",
     "index.html": "/frontend-interview-quiz/index.html",
-    "main.3e82905e.css.map": "/frontend-interview-quiz/static/css/main.3e82905e.css.map",
-    "main.d06f27ac.js.map": "/frontend-interview-quiz/static/js/main.d06f27ac.js.map",
+    "main.24128571.css.map": "/frontend-interview-quiz/static/css/main.24128571.css.map",
+    "main.4d184b93.js.map": "/frontend-interview-quiz/static/js/main.4d184b93.js.map",
     "3.fd696793.chunk.js.map": "/frontend-interview-quiz/static/js/3.fd696793.chunk.js.map",
     "453.b591adc0.chunk.js.map": "/frontend-interview-quiz/static/js/453.b591adc0.chunk.js.map",
     "211.547bb4d6.chunk.js.map": "/frontend-interview-quiz/static/js/211.547bb4d6.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.3e82905e.css",
-    "static/js/main.d06f27ac.js"
+    "static/css/main.24128571.css",
+    "static/js/main.4d184b93.js"
   ]
 }
