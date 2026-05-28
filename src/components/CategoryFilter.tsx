@@ -7,7 +7,7 @@ interface Props {
   onCategoryChange: (category: string) => void;
 }
 
-const COLLAPSED_MAX_HEIGHT = 58; // 约两行按钮的高度
+const COLLAPSED_MAX_HEIGHT = 26; // 一行按钮的高度
 
 const CategoryFilter: React.FC<Props> = ({
   categories,

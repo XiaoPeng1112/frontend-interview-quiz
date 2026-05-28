@@ -96,7 +96,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  padding: 6px 16px 4px;
+  padding: 5px 16px 3px;
   margin: 0 -16px;
   background: linear-gradient(160deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
   background-attachment: fixed;
@@ -104,26 +104,26 @@ body {
 
 /* Search */
 .search-bar {
-  margin-bottom: 5px;
+  margin-bottom: 4px;
   position: relative;
 }
 
 .search-icon {
   position: absolute;
-  left: 14px;
+  left: 10px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 14px;
+  font-size: 13px;
   opacity: 0.5;
   pointer-events: none;
 }
 
 .search-input {
   width: 100%;
-  padding: 7px 40px 7px 38px;
+  padding: 6px 40px 6px 34px;
   border: 1px solid var(--card-border);
-  border-radius: 8px;
-  font-size: 13px;
+  border-radius: 7px;
+  font-size: 12.5px;
   background: rgba(255, 255, 255, 0.05);
   color: var(--text-primary);
   outline: none;
@@ -164,15 +164,23 @@ body {
   transform: translateY(-50%) scale(0.9);
 }
 
+/* Filter Bottom Row */
+.filter-bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
 /* Question Count */
 .question-count {
   color: var(--text-secondary);
   font-size: 11px;
-  margin-top: 4px;
-  padding-left: 2px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .question-count strong {
