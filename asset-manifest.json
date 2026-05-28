@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/frontend-interview-quiz/static/css/main.a195acf4.css",
-    "main.js": "/frontend-interview-quiz/static/js/main.70a4033e.js",
+    "main.js": "/frontend-interview-quiz/static/js/main.04095db8.js",
     "static/js/453.faeb8616.chunk.js": "/frontend-interview-quiz/static/js/453.faeb8616.chunk.js",
     "index.html": "/frontend-interview-quiz/index.html",
     "main.a195acf4.css.map": "/frontend-interview-quiz/static/css/main.a195acf4.css.map",
-    "main.70a4033e.js.map": "/frontend-interview-quiz/static/js/main.70a4033e.js.map",
+    "main.04095db8.js.map": "/frontend-interview-quiz/static/js/main.04095db8.js.map",
     "453.faeb8616.chunk.js.map": "/frontend-interview-quiz/static/js/453.faeb8616.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.a195acf4.css",
-    "static/js/main.70a4033e.js"
+    "static/js/main.04095db8.js"
   ]
 }
