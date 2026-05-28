@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/frontend-interview-quiz/static/css/main.8fce27b9.css",
-    "main.js": "/frontend-interview-quiz/static/js/main.1af9cc5b.js",
+    "main.css": "/frontend-interview-quiz/static/css/main.d5a5600a.css",
+    "main.js": "/frontend-interview-quiz/static/js/main.fcb6a2bd.js",
     "static/js/453.faeb8616.chunk.js": "/frontend-interview-quiz/static/js/453.faeb8616.chunk.js",
     "index.html": "/frontend-interview-quiz/index.html",
-    "main.8fce27b9.css.map": "/frontend-interview-quiz/static/css/main.8fce27b9.css.map",
-    "main.1af9cc5b.js.map": "/frontend-interview-quiz/static/js/main.1af9cc5b.js.map",
+    "main.d5a5600a.css.map": "/frontend-interview-quiz/static/css/main.d5a5600a.css.map",
+    "main.fcb6a2bd.js.map": "/frontend-interview-quiz/static/js/main.fcb6a2bd.js.map",
     "453.faeb8616.chunk.js.map": "/frontend-interview-quiz/static/js/453.faeb8616.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.8fce27b9.css",
-    "static/js/main.1af9cc5b.js"
+    "static/css/main.d5a5600a.css",
+    "static/js/main.fcb6a2bd.js"
   ]
 }
