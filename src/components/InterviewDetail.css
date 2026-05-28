@@ -198,7 +198,7 @@
   height: 4px;
   border-radius: 2px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--card-border);
   margin-bottom: 8px;
 }
 
@@ -422,9 +422,9 @@
   white-space: pre-wrap;
   word-break: break-word;
   padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--card-bg);
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--card-border);
 }
 
 .answer-content.oral {

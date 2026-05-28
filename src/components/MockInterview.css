@@ -212,7 +212,7 @@
 
 .progress-bar {
   height: 3px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--card-border);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -238,8 +238,8 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid var(--card-border);
+  background: var(--card-bg);
   cursor: pointer;
   transition: all 0.2s ease;
   padding: 0;
@@ -473,7 +473,7 @@
 .breakdown-bar {
   flex: 1;
   height: 6px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--card-border);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -505,7 +505,7 @@
 .breakdown-row.skipped .breakdown-bar span {
   display: block;
   height: 100%;
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--text-muted);
   border-radius: 3px;
   transition: width 0.5s ease;
 }
@@ -654,7 +654,7 @@
 .mock-history-section {
   margin-top: 24px;
   padding-top: 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--card-border);
 }
 
 /* 我的回答输入区 */

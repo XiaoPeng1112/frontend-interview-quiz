@@ -26,10 +26,10 @@
 
 .category-btn {
   padding: 3px 8px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--card-border);
   border-radius: 5px;
   font-size: 11px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--card-bg);
   color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -52,10 +52,10 @@
 .category-toggle-inline {
   flex-shrink: 0;
   padding: 3px 6px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--card-border);
   border-radius: 5px;
   font-size: 10px;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--card-bg);
   color: var(--text-muted);
   cursor: pointer;
   white-space: nowrap;

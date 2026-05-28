@@ -118,7 +118,7 @@ const InterviewDetail: React.FC<Props> = ({ record, onBack }) => {
       <div className="detail-overview">
         <div className="overview-score-ring">
           <svg viewBox="0 0 80 80" className="score-ring-svg">
-            <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="6" />
+            <circle cx="40" cy="40" r="34" fill="none" stroke="var(--card-border)" strokeWidth="6" />
             <circle
               cx="40" cy="40" r="34" fill="none"
               stroke={scoreRate >= 70 ? '#4ade80' : scoreRate >= 40 ? '#fbbf24' : '#f87171'}

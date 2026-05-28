@@ -20,7 +20,7 @@
   align-items: center;
   gap: 3px;
   padding: 3px 7px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--card-border);
   border-radius: 5px;
   font-size: 11px;
   background: transparent;

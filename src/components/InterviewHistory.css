@@ -118,7 +118,7 @@
   height: 4px;
   border-radius: 2px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--card-border);
 }
 
 .bar-mastered {

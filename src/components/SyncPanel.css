@@ -106,7 +106,7 @@
 }
 
 .sync-dot.disconnected {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--text-muted);
 }
 
 .sync-text {

@@ -206,6 +206,9 @@ const App: React.FC = () => {
             activeDifficulty={activeDifficulty}
             onDifficultyChange={setActiveDifficulty}
           />
+          <button className="random-quiz-btn" onClick={handleRandomQuestion}>
+            🎲 随机一题
+          </button>
           <div className="question-count">
             <span>共 <strong>{filteredQuestions.length}</strong> 题</span>
             {activeCategory !== '全部' && (
@@ -216,13 +219,6 @@ const App: React.FC = () => {
             )}
           </div>
         </div>
-      </div>
-
-      {/* 随机一题按钮 */}
-      <div className="random-quiz-bar">
-        <button className="random-quiz-btn" onClick={handleRandomQuestion}>
-          🎲 随机一题
-        </button>
       </div>
 
       <div className="question-list">
