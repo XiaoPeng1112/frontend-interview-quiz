@@ -125,19 +125,20 @@
 .question-actions {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
+  gap: 12px;
   margin-left: auto;
+  flex-shrink: 0;
 }
 
 .q-action-icon {
-  font-size: 15px;
+  font-size: 16px;
   color: var(--text-muted);
   cursor: pointer;
   transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
-  padding: 2px;
+  padding: 3px;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .q-action-icon:active {
