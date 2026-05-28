@@ -46,8 +46,13 @@ const QuestionCard: React.FC<Props> = ({ question, stickyTop = 0, isFavorite, ma
     ? question.oralAnswer || ''
     : question.answer;
 
-  // 将纯文本中的连续空行压缩，避免 markdown 生成过多空段落
-  const answerText = rawAnswer.replace(/\n{3,}/g, '\n\n');
+  // 处理文本：代码块外的双换行 → 单换行（避免 markdown 产生大间距 <p>）
+  const answerText = rawAnswer.split(/(```[\s\S]*?```)/g).map((segment, i) => {
+    // 奇数索引是代码块，保持原样
+    if (i % 2 === 1) return segment;
+    // 非代码块部分：双换行变成两个空格+单换行（markdown 的 <br>）
+    return segment.replace(/\n{3,}/g, '\n\n').replace(/\n\n/g, '  \n');
+  }).join('');
 
   return (
     <div className={`question-card ${showAnswer ? 'expanded' : ''}`} ref={cardRef}>
