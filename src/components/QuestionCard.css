@@ -225,14 +225,30 @@
   overflow-wrap: break-word;
 }
 
+.answer-markdown > * {
+  margin: 0;
+}
+
+.answer-markdown > * + * {
+  margin-top: 6px;
+}
+
 .answer-markdown p {
-  margin: 2px 0;
+  margin: 0;
+}
+
+.answer-markdown p + p {
+  margin-top: 4px;
+}
+
+.answer-markdown p:empty {
+  display: none;
 }
 
 .answer-markdown ul,
 .answer-markdown ol {
   padding-left: 18px;
-  margin: 2px 0;
+  margin: 4px 0;
 }
 
 .answer-markdown li {

@@ -42,9 +42,12 @@ const QuestionCard: React.FC<Props> = ({ question, stickyTop = 0, isFavorite, ma
 
   const hasOralAnswer = !!question.oralAnswer;
 
-  const answerText = answerTab === 'oral' && hasOralAnswer
+  const rawAnswer = answerTab === 'oral' && hasOralAnswer
     ? question.oralAnswer || ''
     : question.answer;
+
+  // 将纯文本中的连续空行压缩，避免 markdown 生成过多空段落
+  const answerText = rawAnswer.replace(/\n{3,}/g, '\n\n');
 
   return (
     <div className={`question-card ${showAnswer ? 'expanded' : ''}`} ref={cardRef}>
