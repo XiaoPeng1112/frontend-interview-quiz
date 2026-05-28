@@ -216,6 +216,17 @@
   background: rgba(255, 255, 255, 0.06);
 }
 
+/* Plain text answer (no markdown) */
+.answer-pre {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'SF Pro Display', sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+}
+
 /* Markdown answer styles */
 .answer-markdown {
   font-size: 13px;

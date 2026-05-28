@@ -46,13 +46,9 @@ const QuestionCard: React.FC<Props> = ({ question, stickyTop = 0, isFavorite, ma
     ? question.oralAnswer || ''
     : question.answer;
 
-  // 处理文本：代码块外的双换行 → 单换行（避免 markdown 产生大间距 <p>）
-  const answerText = rawAnswer.split(/(```[\s\S]*?```)/g).map((segment, i) => {
-    // 奇数索引是代码块，保持原样
-    if (i % 2 === 1) return segment;
-    // 非代码块部分：双换行变成两个空格+单换行（markdown 的 <br>）
-    return segment.replace(/\n{3,}/g, '\n\n').replace(/\n\n/g, '  \n');
-  }).join('');
+  // 判断是否包含 markdown 特征（代码块、表格等）
+  const hasMarkdown = /```|^\|.*\|/m.test(rawAnswer);
+  const answerText = rawAnswer;
 
   return (
     <div className={`question-card ${showAnswer ? 'expanded' : ''}`} ref={cardRef}>
@@ -118,38 +114,42 @@ const QuestionCard: React.FC<Props> = ({ question, stickyTop = 0, isFavorite, ma
               </button>
             </div>
           )}
-          <div className="answer-markdown">
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              components={{
-                code({ node, className, children, ...props }) {
-                  const match = /language-(\w+)/.exec(className || '');
-                  const inline = !match && !String(children).includes('\n');
-                  return !inline ? (
-                    <SyntaxHighlighter
-                      style={vscDarkPlus as any}
-                      language={match ? match[1] : 'text'}
-                      PreTag="div"
-                      customStyle={{
-                        margin: '8px 0',
-                        borderRadius: '8px',
-                        fontSize: '12px',
-                        padding: '12px',
-                      }}
-                    >
-                      {String(children).replace(/\n$/, '')}
-                    </SyntaxHighlighter>
-                  ) : (
-                    <code className="inline-code" {...props}>
-                      {children}
-                    </code>
-                  );
-                },
-              }}
-            >
-              {answerText}
-            </ReactMarkdown>
-          </div>
+          {hasMarkdown ? (
+            <div className="answer-markdown">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  code({ node, className, children, ...props }) {
+                    const match = /language-(\w+)/.exec(className || '');
+                    const inline = !match && !String(children).includes('\n');
+                    return !inline ? (
+                      <SyntaxHighlighter
+                        style={vscDarkPlus as any}
+                        language={match ? match[1] : 'text'}
+                        PreTag="div"
+                        customStyle={{
+                          margin: '8px 0',
+                          borderRadius: '8px',
+                          fontSize: '12px',
+                          padding: '12px',
+                        }}
+                      >
+                        {String(children).replace(/\n$/, '')}
+                      </SyntaxHighlighter>
+                    ) : (
+                      <code className="inline-code" {...props}>
+                        {children}
+                      </code>
+                    );
+                  },
+                }}
+              >
+                {answerText}
+              </ReactMarkdown>
+            </div>
+          ) : (
+            <pre className="answer-pre">{answerText}</pre>
+          )}
         </div>
       )}
     </div>
