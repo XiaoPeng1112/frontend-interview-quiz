@@ -219,24 +219,28 @@
 /* Markdown answer styles */
 .answer-markdown {
   font-size: 13px;
-  line-height: 1.7;
+  line-height: 1.6;
   color: var(--text-secondary);
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
 
 .answer-markdown p {
-  margin: 6px 0;
+  margin: 2px 0;
 }
 
 .answer-markdown ul,
 .answer-markdown ol {
   padding-left: 18px;
-  margin: 6px 0;
+  margin: 2px 0;
 }
 
 .answer-markdown li {
-  margin: 3px 0;
+  margin: 1px 0;
+}
+
+.answer-markdown li > p {
+  margin: 0;
 }
 
 .answer-markdown h1,

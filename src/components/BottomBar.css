@@ -37,11 +37,13 @@
 .bottom-bar-icon {
   font-size: 20px;
   line-height: 1;
-  transition: transform 0.2s ease;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
 }
 
 .bottom-bar-item.active .bottom-bar-icon {
   transform: scale(1.15);
+  color: var(--primary-light);
 }
 
 .bottom-bar-label {
