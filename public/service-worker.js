@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-globals */
 
-const CACHE_NAME = 'interview-quiz-v1';
+const CACHE_NAME = 'interview-quiz-v2';
 
 // 需要预缓存的核心资源（在 install 时缓存）
 const PRECACHE_URLS = [

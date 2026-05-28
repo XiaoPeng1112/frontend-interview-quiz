@@ -33,6 +33,9 @@ function registerValidSW(swUrl: string) {
   navigator.serviceWorker
     .register(swUrl)
     .then((registration) => {
+      // 每次页面加载都检查更新
+      registration.update();
+
       registration.onupdatefound = () => {
         const installingWorker = registration.installing;
         if (!installingWorker) return;
@@ -40,8 +43,9 @@ function registerValidSW(swUrl: string) {
         installingWorker.onstatechange = () => {
           if (installingWorker.state === 'installed') {
             if (navigator.serviceWorker.controller) {
-              // 新内容可用，提示用户刷新
-              console.log('New content available; please refresh.');
+              // 新内容可用，自动刷新页面使用最新版本
+              console.log('New content available; auto refreshing...');
+              window.location.reload();
             } else {
               console.log('Content is cached for offline use.');
             }
