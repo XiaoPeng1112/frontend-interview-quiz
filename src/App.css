@@ -316,24 +316,26 @@ body {
   opacity: 1;
 }
 
-/* Random Quiz Button - integrated into filter row */
-.random-quiz-btn {
-  padding: 4px 10px;
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  border-radius: 12px;
-  background: rgba(99, 102, 241, 0.1);
-  color: var(--primary-light);
-  font-size: 11px;
-  font-weight: 600;
+/* Random Quiz - stat card style */
+.stat-item-action {
   cursor: pointer;
-  transition: all 0.2s ease;
   -webkit-tap-highlight-color: transparent;
-  white-space: nowrap;
+  border-color: rgba(99, 102, 241, 0.2);
+  background: rgba(99, 102, 241, 0.06);
 }
 
-.random-quiz-btn:active {
+.stat-item-action:active {
   transform: scale(0.95);
-  background: rgba(99, 102, 241, 0.2);
+  background: rgba(99, 102, 241, 0.12);
+}
+
+.stat-item-action .stat-number {
+  font-size: 22px;
+}
+
+.stat-item-action .stat-label {
+  color: var(--primary-light);
+  font-weight: 500;
 }
 
 /* Random Quiz Modal */
@@ -400,11 +402,19 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Override sticky header inside modal to work relative to modal body */
+/* Disable sticky header inside modal — small viewport, not needed */
 .random-modal-body .question-sticky-header.is-sticky {
-  position: sticky;
-  top: 0;
-  z-index: 50;
+  position: relative;
+  top: auto;
+  margin: 0;
+  padding: 10px 10px 8px;
+  border-radius: 0;
+  background: none;
+  border-bottom: none;
+}
+
+.random-modal-body .question-sticky-header.is-sticky::before {
+  display: none;
 }
 
 .random-modal-footer {

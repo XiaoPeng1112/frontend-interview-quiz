@@ -164,6 +164,10 @@ const App: React.FC = () => {
           <span className="stat-number">{stats.hard}</span>
           <span className="stat-label">高难度题</span>
         </div>
+        <div className="stat-item stat-item-action" onClick={handleRandomQuestion}>
+          <span className="stat-number">🎲</span>
+          <span className="stat-label">随机一题</span>
+        </div>
       </div>
 
       {/* 同步面板 */}
@@ -206,9 +210,6 @@ const App: React.FC = () => {
             activeDifficulty={activeDifficulty}
             onDifficultyChange={setActiveDifficulty}
           />
-          <button className="random-quiz-btn" onClick={handleRandomQuestion}>
-            🎲 随机一题
-          </button>
           <div className="question-count">
             <span>共 <strong>{filteredQuestions.length}</strong> 题</span>
             {activeCategory !== '全部' && (
