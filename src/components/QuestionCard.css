@@ -1,8 +1,8 @@
 .question-card {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 12px;
+  border-radius: 10px;
+  padding: 10px;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   transition: all 0.3s ease;
@@ -29,14 +29,14 @@
 .question-sticky-header.is-sticky {
   position: sticky;
   z-index: 50;
-  padding: 10px 12px 10px;
-  margin: -12px -12px 0;
-  border-radius: 12px 12px 0 0;
+  padding: 8px 10px 8px;
+  margin: -10px -10px 0;
+  border-radius: 10px 10px 0 0;
   background: linear-gradient(160deg, #1a1640 0%, #2d2760 50%, #252245 100%);
   border-bottom: 1px solid rgba(99, 102, 241, 0.15);
   /* 向上多遮盖几像素，防止答案从顶部缝隙漏出 */
-  padding-top: 12px;
-  margin-top: -12px;
+  padding-top: 10px;
+  margin-top: -10px;
 }
 
 .question-sticky-header.is-sticky::before {
@@ -177,10 +177,10 @@
 }
 
 .answer-content {
-  margin-top: 10px;
-  padding: 10px 12px;
+  margin-top: 8px;
+  padding: 8px 10px;
   background: rgba(0, 0, 0, 0.2);
-  border-radius: 10px;
+  border-radius: 8px;
   border-left: 3px solid var(--primary);
   animation: slideDown 0.3s ease;
 }
