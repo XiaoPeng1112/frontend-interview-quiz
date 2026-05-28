@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Question } from '../data/questions';
-import { StarFilled, StarOutlined, CheckCircleFilled, CheckCircleOutlined, ExclamationCircleFilled, ExclamationCircleOutlined } from '@ant-design/icons';
+import { StarFilled, StarOutlined, CheckCircleFilled, CheckCircleOutlined, ExclamationCircleFilled, ExclamationCircleOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -87,7 +87,7 @@ const QuestionCard: React.FC<Props> = ({ question, stickyTop = 0, isFavorite, ma
           onClick={() => showAnswer ? handleCollapse() : setShowAnswer(true)}
         >
           <span className="question-title-text">{question.question}</span>
-          <span className="expand-hint">{showAnswer ? '收起 ▲' : '查看 ▾'}</span>
+          <span className="expand-hint">{showAnswer ? <>收起 <UpOutlined /></> : <>查看 <DownOutlined /></>}</span>
         </h3>
       </div>
 
